@@ -40,6 +40,7 @@ type GameState = {
 };
 
 type CaptureFx = { id: number; player: Player; cards: Card[] } | null;
+type DealTrack = { deal: number; cursor: number | null; human: number; bot: number };
 
 const emptyScore = (): RoundScore => ({ captured: [], pistis: 0, jackPistis: 0 });
 let sharedAudioContext: AudioContext | null = null;
@@ -67,7 +68,6 @@ function createInitialState(): GameState {
 function scoreRound(state: GameState) {
   const humanMostCards = state.human.captured.length > state.bot.captured.length ? 3 : 0;
   const botMostCards = state.bot.captured.length > state.human.captured.length ? 3 : 0;
-
   return {
     human: capturedBasePoints(state.human.captured) + state.human.pistis * 10 + state.human.jackPistis * 20 + humanMostCards,
     bot: capturedBasePoints(state.bot.captured) + state.bot.pistis * 10 + state.bot.jackPistis * 20 + botMostCards,
@@ -88,10 +88,7 @@ function playCard(prev: GameState, player: Player, card: Card) {
   const jackPisti = Boolean(captured && prev.table.length === 1 && card.rank === "J" && top?.rank === "J");
   const capturedCards = captured ? [...prev.table, card] : [];
 
-  const next = {
-    ...prev,
-    [handKey]: hand.filter((item) => item.id !== card.id),
-  } as GameState;
+  const next = { ...prev, [handKey]: hand.filter((item) => item.id !== card.id) } as GameState;
 
   if (captured) {
     next.table = [];
@@ -129,13 +126,9 @@ function continueOrFinishRound(state: GameState): GameState {
     finished = {
       ...state,
       table: [],
-      [owner]: {
-        ...state[owner],
-        captured: [...state[owner].captured, ...state.table],
-      },
+      [owner]: { ...state[owner], captured: [...state[owner].captured, ...state.table] },
     } as GameState;
   }
-
   return { ...finished, status: "round-end" };
 }
 
@@ -186,18 +179,21 @@ function tableTap(context: AudioContext, when: number, frequency = 145, volume =
   oscillator.stop(when + 0.08);
 }
 
-function playSound(kind: "play" | "capture" | "pisti") {
+function playSound(kind: "play" | "capture" | "pisti" | "deal") {
   try {
     const context = audioContext();
     const now = context.currentTime;
-
+    if (kind === "deal") {
+      paperBurst(context, now, 0.055, 1450, 0.035);
+      tableTap(context, now + 0.025, 175, 0.012);
+      return;
+    }
     if (kind === "play") {
       paperBurst(context, now, 0.085, 1250, 0.065);
       paperBurst(context, now + 0.022, 0.055, 720, 0.035);
       tableTap(context, now + 0.018, 155, 0.025);
       return;
     }
-
     if (kind === "capture") {
       paperBurst(context, now, 0.11, 1120, 0.075);
       paperBurst(context, now + 0.045, 0.105, 820, 0.065);
@@ -205,13 +201,12 @@ function playSound(kind: "play" | "capture" | "pisti") {
       tableTap(context, now + 0.028, 130, 0.045);
       return;
     }
-
     paperBurst(context, now, 0.11, 1300, 0.09);
     paperBurst(context, now + 0.035, 0.09, 880, 0.075);
     tableTap(context, now + 0.015, 170, 0.05);
     tableTap(context, now + 0.115, 240, 0.035);
   } catch {
-    // Audio is optional; gameplay remains functional when Web Audio is unavailable.
+    // Audio is optional.
   }
 }
 
@@ -228,6 +223,7 @@ export default function PistiGame() {
   const [toast, setToast] = useState("");
   const [hydrated, setHydrated] = useState(false);
   const [captureFx, setCaptureFx] = useState<CaptureFx>(null);
+  const [dealTrack, setDealTrack] = useState<DealTrack>({ deal: 0, cursor: null, human: 4, bot: 4 });
   const botTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const captureTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const roundRecorded = useRef(false);
@@ -243,12 +239,38 @@ export default function PistiGame() {
   useEffect(() => { if (hydrated) saveLocal("stats", stats); }, [hydrated, stats]);
   useEffect(() => { if (hydrated) saveLocal("history", history); }, [hydrated, history]);
 
-  useEffect(() => () => {
-    if (captureTimer.current) clearTimeout(captureTimer.current);
-  }, []);
+  useEffect(() => () => { if (captureTimer.current) clearTimeout(captureTimer.current); }, []);
+
+  useEffect(() => {
+    if (!state) return;
+    if (preferences.reducedMotion) {
+      setDealTrack({ deal: state.deal, cursor: null, human: 4, bot: 4 });
+      return;
+    }
+    setDealTrack({ deal: state.deal, cursor: 0, human: 0, bot: 0 });
+  }, [state?.deal, preferences.reducedMotion]);
 
   const mode = preferences.mode;
   const roundScore = useMemo(() => (state ? scoreRound(state) : { human: 0, bot: 0 }), [state]);
+  const isDealing = Boolean(state && !preferences.reducedMotion && (dealTrack.deal !== state.deal || dealTrack.cursor !== null));
+  const visibleHuman = !state ? 0 : preferences.reducedMotion ? state.humanHand.length : dealTrack.deal === state.deal ? dealTrack.human : 0;
+  const visibleBot = !state ? 0 : preferences.reducedMotion ? state.botHand.length : dealTrack.deal === state.deal ? dealTrack.bot : 0;
+
+  const finishDealCard = useCallback(() => {
+    setDealTrack((current) => {
+      if (!state || current.deal !== state.deal || current.cursor === null) return current;
+      const target: Player = current.cursor % 2 === 0 ? "bot" : "human";
+      const nextHuman = current.human + (target === "human" ? 1 : 0);
+      const nextBot = current.bot + (target === "bot" ? 1 : 0);
+      if (preferences.sound) playSound("deal");
+      return {
+        deal: current.deal,
+        cursor: current.cursor >= 7 ? null : current.cursor + 1,
+        human: nextHuman,
+        bot: nextBot,
+      };
+    });
+  }, [preferences.sound, state]);
 
   const showCapture = useCallback((player: Player, cards: Card[]) => {
     if (preferences.reducedMotion || cards.length === 0) return;
@@ -262,10 +284,9 @@ export default function PistiGame() {
     setPreferences((current) => ({ ...current, mode: selectedMode }));
     setState(createInitialState());
     setScreen("game");
-    setToast("Kartlar dağıtıldı");
+    setToast("Kartlar dağıtılıyor");
     setCaptureFx(null);
     roundRecorded.current = false;
-
     if (resetSeries) {
       setSeriesScore({ human: 0, bot: 0 });
       setCountdownScore({ human: 101, bot: 101 });
@@ -273,52 +294,48 @@ export default function PistiGame() {
   }, [mode]);
 
   const makeMove = useCallback((player: Player, card: Card) => {
+    if (isDealing) return;
     setState((current) => {
       if (!current) return current;
       const result = playCard(current, player, card);
       if (result.state === current) return current;
-
       if (preferences.sound) playSound(result.pisti || result.jackPisti ? "pisti" : result.captured ? "capture" : "play");
       if (result.captured) showCapture(player, result.capturedCards);
-
       if (result.jackPisti) setToast(`${player === "human" ? "Sen" : "Bot"}: Vale Pişti! +20`);
       else if (result.pisti) setToast(`${player === "human" ? "Sen" : "Bot"}: Pişti! +10`);
       else if (result.captured) setToast(`${player === "human" ? "Sen" : "Bot"} masayı aldı`);
-
       return continueOrFinishRound(result.state);
     });
-  }, [preferences.sound, showCapture]);
+  }, [isDealing, preferences.sound, showCapture]);
 
   useEffect(() => {
-    if (!state || state.turn !== "bot" || state.status !== "playing") return;
-
+    if (!state || isDealing || state.turn !== "bot" || state.status !== "playing") return;
     if (botTimer.current) clearTimeout(botTimer.current);
     botTimer.current = setTimeout(() => {
       setState((current) => {
         if (!current || current.turn !== "bot" || current.status !== "playing" || !current.botHand.length) return current;
         const card = botChooseCard(current.botHand, current.table);
         const result = playCard(current, "bot", card);
-
         if (preferences.sound) playSound(result.pisti || result.jackPisti ? "pisti" : result.captured ? "capture" : "play");
         if (result.captured) showCapture("bot", result.capturedCards);
-
         if (result.jackPisti) setToast("Bot: Vale Pişti! +20");
         else if (result.pisti) setToast("Bot: Pişti! +10");
         else if (result.captured) setToast("Bot masayı aldı");
-
         return continueOrFinishRound(result.state);
       });
     }, preferences.reducedMotion ? 220 : 700);
-
     return () => { if (botTimer.current) clearTimeout(botTimer.current); };
-  }, [state?.turn, state?.status, state?.botHand.length, preferences.reducedMotion, preferences.sound, showCapture]);
+  }, [state?.turn, state?.status, state?.botHand.length, isDealing, preferences.reducedMotion, preferences.sound, showCapture]);
+
+  useEffect(() => {
+    if (!isDealing && state?.status === "playing" && toast === "Kartlar dağıtılıyor") setToast("Kartlar dağıtıldı");
+  }, [isDealing, state?.status, toast]);
 
   useEffect(() => {
     if (!state || state.status !== "round-end" || roundRecorded.current) return;
     roundRecorded.current = true;
     const score = scoreRound(state);
     const result: HistoryItem["result"] = score.human > score.bot ? "win" : score.human < score.bot ? "loss" : "draw";
-
     setStats((current) => ({
       games: current.games + 1,
       wins: current.wins + (result === "win" ? 1 : 0),
@@ -328,9 +345,7 @@ export default function PistiGame() {
       bestScore: Math.max(current.bestScore, score.human),
       totalCaptured: current.totalCaptured + state.human.captured.length,
     }));
-
     setHistory((current) => [{ id: crypto.randomUUID(), at: new Date().toISOString(), mode, human: score.human, bot: score.bot, result }, ...current].slice(0, 20));
-
     if (mode === "countdown101") {
       setCountdownScore((current) => ({ human: Math.max(0, current.human - score.human), bot: Math.max(0, current.bot - score.bot) }));
     } else if (mode === "target51" || mode === "target101") {
@@ -349,7 +364,7 @@ export default function PistiGame() {
   const nextRound = () => {
     roundRecorded.current = false;
     setState(createInitialState());
-    setToast("Yeni el başladı");
+    setToast("Kartlar dağıtılıyor");
     setCaptureFx(null);
   };
 
@@ -370,22 +385,8 @@ export default function PistiGame() {
       <main className="menu-page">
         <header className="topbar"><Brand /><div className="top-actions"><button onClick={() => setScreen("stats")}>İstatistikler</button><button onClick={() => setShowSettings(true)}>Ayarlar</button></div></header>
         <section className="hero-menu">
-          <div className="hero-copy">
-            <span className="eyebrow">TEK KİŞİLİK · ÇEVRİMDIŞI</span>
-            <h1>Masayı oku.<br /><em>Kartı bırak.</em><br />Piştiyi kap.</h1>
-            <p>Modern ve hızlı bir tarayıcı Pişti deneyimi. Hesap, API veya uzak veritabanı yok; istatistikler yalnızca bu cihazda saklanır.</p>
-            <div className="quick-stats"><div><b>{stats.games}</b><span>oyun</span></div><div><b>%{winRate}</b><span>galibiyet</span></div><div><b>{stats.pistis}</b><span>pişti</span></div></div>
-          </div>
-          <div className="mode-panel">
-            <div className="panel-title"><span>Oyun modu</span><button onClick={() => setShowRules(true)}>Kurallar</button></div>
-            <div className="mode-grid">
-              {([ ["single", "Tek Oyun", "Bir deste, tek sonuç", "01"], ["target51", "51 Puan", "51'e ilk ulaşan", "51"], ["target101", "101 Puan", "Uzun seri oyunu", "101"], ["countdown101", "Sayıdan Düşme", "101'den sıfıra in", "↓"] ] as const).map(([value, title, subtitle, badge]) => (
-                <button key={value} className={`mode-card ${preferences.mode === value ? "active" : ""}`} onClick={() => setPreferences((current) => ({ ...current, mode: value }))}><span>{badge}</span><strong>{title}</strong><small>{subtitle}</small></button>
-              ))}
-            </div>
-            <button className="primary-button" onClick={() => startGame(preferences.mode, true)}>Oyunu başlat <b>→</b></button>
-            <p className="local-note">● Veriler localStorage üzerinde saklanır</p>
-          </div>
+          <div className="hero-copy"><span className="eyebrow">TEK KİŞİLİK · ÇEVRİMDIŞI</span><h1>Masayı oku.<br /><em>Kartı bırak.</em><br />Piştiyi kap.</h1><p>Modern ve hızlı bir tarayıcı Pişti deneyimi. Hesap, API veya uzak veritabanı yok; istatistikler yalnızca bu cihazda saklanır.</p><div className="quick-stats"><div><b>{stats.games}</b><span>oyun</span></div><div><b>%{winRate}</b><span>galibiyet</span></div><div><b>{stats.pistis}</b><span>pişti</span></div></div></div>
+          <div className="mode-panel"><div className="panel-title"><span>Oyun modu</span><button onClick={() => setShowRules(true)}>Kurallar</button></div><div className="mode-grid">{([ ["single", "Tek Oyun", "Bir deste, tek sonuç", "01"], ["target51", "51 Puan", "51'e ilk ulaşan", "51"], ["target101", "101 Puan", "Uzun seri oyunu", "101"], ["countdown101", "Sayıdan Düşme", "101'den sıfıra in", "↓"] ] as const).map(([value, title, subtitle, badge]) => <button key={value} className={`mode-card ${preferences.mode === value ? "active" : ""}`} onClick={() => setPreferences((current) => ({ ...current, mode: value }))}><span>{badge}</span><strong>{title}</strong><small>{subtitle}</small></button>)}</div><button className="primary-button" onClick={() => startGame(preferences.mode, true)}>Oyunu başlat <b>→</b></button><p className="local-note">● Veriler localStorage üzerinde saklanır</p></div>
         </section>
         <RulesModal open={showRules} onClose={() => setShowRules(false)} />
         <SettingsModal open={showSettings} preferences={preferences} setPreferences={setPreferences} onClose={() => setShowSettings(false)} onReset={resetLocalData} />
@@ -394,20 +395,7 @@ export default function PistiGame() {
   }
 
   if (screen === "stats") {
-    return (
-      <main className="stats-page">
-        <header className="topbar"><button className="back-button" onClick={() => setScreen("menu")}>← Menü</button><Brand compact /><span /></header>
-        <section className="stats-wrap">
-          <div className="stats-grid"><Stat label="Toplam oyun" value={stats.games} /><Stat label="Galibiyet" value={stats.wins} /><Stat label="Pişti" value={stats.pistis} /><Stat label="En iyi skor" value={stats.bestScore} /></div>
-          <div className="history-card">
-            <div className="history-head"><div><small>SON OYUNLAR</small><h2>Oyun geçmişi</h2></div><span>Son 20 oyun</span></div>
-            {history.length === 0 ? <div className="empty-state">Henüz tamamlanmış oyun yok.</div> : (
-              <div className="history-list">{history.map((item) => <div className="history-row" key={item.id}><span className={`result-dot ${item.result}`} /><div><b>{getModeLabel(item.mode)}</b><small>{new Intl.DateTimeFormat("tr-TR", { dateStyle: "medium", timeStyle: "short" }).format(new Date(item.at))}</small></div><div className="history-score"><b>{item.human} — {item.bot}</b><small>{item.result === "win" ? "Kazandın" : item.result === "loss" ? "Kaybettin" : "Berabere"}</small></div></div>)}</div>
-            )}
-          </div>
-        </section>
-      </main>
-    );
+    return <main className="stats-page"><header className="topbar"><button className="back-button" onClick={() => setScreen("menu")}>← Menü</button><Brand compact /><span /></header><section className="stats-wrap"><div className="stats-grid"><Stat label="Toplam oyun" value={stats.games} /><Stat label="Galibiyet" value={stats.wins} /><Stat label="Pişti" value={stats.pistis} /><Stat label="En iyi skor" value={stats.bestScore} /></div><div className="history-card"><div className="history-head"><div><small>SON OYUNLAR</small><h2>Oyun geçmişi</h2></div><span>Son 20 oyun</span></div>{history.length === 0 ? <div className="empty-state">Henüz tamamlanmış oyun yok.</div> : <div className="history-list">{history.map((item) => <div className="history-row" key={item.id}><span className={`result-dot ${item.result}`} /><div><b>{getModeLabel(item.mode)}</b><small>{new Intl.DateTimeFormat("tr-TR", { dateStyle: "medium", timeStyle: "short" }).format(new Date(item.at))}</small></div><div className="history-score"><b>{item.human} — {item.bot}</b><small>{item.result === "win" ? "Kazandın" : item.result === "loss" ? "Kaybettin" : "Berabere"}</small></div></div>)}</div>}</div></section></main>;
   }
 
   if (!state) return null;
@@ -415,79 +403,50 @@ export default function PistiGame() {
   const headerScore = mode === "countdown101" ? `${countdownScore.human} ↓ ${countdownScore.bot}` : mode === "single" ? `${roundScore.human} : ${roundScore.bot}` : `${seriesScore.human} : ${seriesScore.bot}`;
   const botPistiCount = state.bot.pistis + state.bot.jackPistis;
   const humanPistiCount = state.human.pistis + state.human.jackPistis;
+  const currentDealTarget: Player | null = isDealing && dealTrack.deal === state.deal && dealTrack.cursor !== null ? (dealTrack.cursor % 2 === 0 ? "bot" : "human") : null;
 
   return (
     <main className={`game-page ${preferences.reducedMotion ? "reduce-motion" : ""}`}>
       <header className="game-header"><button className="icon-button" onClick={() => setScreen("menu")} aria-label="Menüye dön">←</button><div className="round-info"><strong>{getModeLabel(mode)}</strong><span>Dağıtım {state.deal}/6 · Destede {state.deck.length}</span></div><div className="header-score">{headerScore}</div><button className="icon-button" onClick={() => setShowSettings(true)} aria-label="Ayarlar">⚙</button></header>
 
-      <section className="table-area">
-        <div className="deal-sequence" key={`deal-${state.deal}`} aria-hidden="true">
-          {Array.from({ length: 8 }).map((_, index) => <div key={index} className={`deal-ghost ${index % 2 === 0 ? "to-bot" : "to-human"}`} style={{ "--deal-index": index } as React.CSSProperties}><CardView hidden compact /></div>)}
-        </div>
-
-        {captureFx && (
-          <div className={`capture-flight capture-flight-${captureFx.player}`} key={captureFx.id} aria-hidden="true">
-            {captureFx.cards.map((card, index) => <div className="capture-flight-card" key={`${captureFx.id}-${card.id}-${index}`} style={{ "--capture-index": index } as React.CSSProperties}><CardView card={card} compact /></div>)}
+      <section className={`table-area ${isDealing ? "is-dealing" : ""}`}>
+        {currentDealTarget && dealTrack.cursor !== null && (
+          <div className="deal-sequence" aria-hidden="true">
+            <div key={`${state.deal}-${dealTrack.cursor}`} className={`deal-ghost to-${currentDealTarget}`} onAnimationEnd={finishDealCard}>
+              <CardView hidden compact />
+            </div>
           </div>
         )}
 
-        <div className={`player-zone bot-zone ${state.turn === "bot" ? "active-turn" : ""}`}>
-          <PlayerLabel name="Bot" subtitle={state.turn === "bot" ? `Düşünüyor… · ${botPistiCount} pişti` : `${botPistiCount} pişti · ${state.bot.captured.length} kart`} bot />
-          <div className="bot-hand">{state.botHand.map((card, index) => <div className="bot-card" key={card.id} style={{ "--i": index } as React.CSSProperties}><CardView hidden compact /></div>)}</div>
+        {captureFx && <div className={`capture-flight capture-flight-${captureFx.player}`} key={captureFx.id} aria-hidden="true">{captureFx.cards.map((card, index) => <div className="capture-flight-card" key={`${captureFx.id}-${card.id}-${index}`} style={{ "--capture-index": index } as React.CSSProperties}><CardView card={card} compact /></div>)}</div>}
+
+        <div className={`player-zone bot-zone ${state.turn === "bot" && !isDealing ? "active-turn" : ""}`}>
+          <PlayerLabel name="Bot" subtitle={isDealing ? `Kart dağıtılıyor · ${visibleBot}/4` : state.turn === "bot" ? `Düşünüyor… · ${botPistiCount} pişti` : `${botPistiCount} pişti · ${state.bot.captured.length} kart`} bot />
+          <div className="bot-hand">{state.botHand.slice(0, visibleBot).map((card, index) => <div className="bot-card dealt-card" key={card.id} style={{ "--i": index } as React.CSSProperties}><CardView hidden compact /></div>)}</div>
         </div>
 
-        <div className="felt-center">
-          <CapturePile label="Bot" count={state.bot.captured.length} side="bot" />
-          <div className="table-stack" aria-live="polite">
-            {state.table.length === 0 ? <div className="empty-table"><span>♣</span><small>Masa boş</small></div> : state.table.slice(-4).map((card, index) => <div className="stack-card" key={`${card.id}-${state.table.length}-${index}`} style={{ "--stack": index } as React.CSSProperties}><CardView card={card} /></div>)}
-            {state.table.length > 4 && <span className="pile-count">+{state.table.length - 4}</span>}
-          </div>
-          <CapturePile label="Sen" count={state.human.captured.length} side="human" />
-        </div>
+        <div className="felt-center"><CapturePile label="Bot" count={state.bot.captured.length} side="bot" /><div className="table-stack" aria-live="polite">{state.table.length === 0 ? <div className="empty-table"><span>♣</span><small>Masa boş</small></div> : state.table.slice(-4).map((card, index) => <div className="stack-card" key={`${card.id}-${state.table.length}-${index}`} style={{ "--stack": index } as React.CSSProperties}><CardView card={card} /></div>)}{state.table.length > 4 && <span className="pile-count">+{state.table.length - 4}</span>}</div><CapturePile label="Sen" count={state.human.captured.length} side="human" /></div>
 
-        <div className={`player-zone human-zone ${state.turn === "human" ? "active-turn" : ""}`}>
-          <div className="turn-message">● {state.turn === "human" ? "Sıra sende" : "Bot oynuyor"}</div>
-          <div className="human-hand">{state.humanHand.map((card, index) => <div className="hand-slot" key={card.id} style={{ "--i": index } as React.CSSProperties}><CardView card={card} playable={state.turn === "human"} onClick={() => makeMove("human", card)} /></div>)}</div>
-          <PlayerLabel name="Sen" subtitle={`${humanPistiCount} pişti · ${state.human.captured.length} kart`} />
+        <div className={`player-zone human-zone ${state.turn === "human" && !isDealing ? "active-turn" : ""}`}>
+          <div className="turn-message">● {isDealing ? "Kartlar dağıtılıyor" : state.turn === "human" ? "Sıra sende" : "Bot oynuyor"}</div>
+          <div className="human-hand">{state.humanHand.slice(0, visibleHuman).map((card, index) => <div className="hand-slot dealt-card" key={card.id} style={{ "--i": index } as React.CSSProperties}><CardView card={card} playable={!isDealing && state.turn === "human"} onClick={() => makeMove("human", card)} /></div>)}</div>
+          <PlayerLabel name="Sen" subtitle={isDealing ? `Kart dağıtılıyor · ${visibleHuman}/4` : `${humanPistiCount} pişti · ${state.human.captured.length} kart`} />
         </div>
       </section>
 
       {toast && state.status !== "round-end" && <div className="game-toast" key={toast}>{toast}</div>}
 
-      {state.status === "round-end" && (
-        <div className="result-overlay"><div className="result-modal"><small>EL TAMAMLANDI</small><h2>{roundScore.human > roundScore.bot ? "Bu eli kazandın" : roundScore.human < roundScore.bot ? "Bu eli bot kazandı" : "El berabere"}</h2><div className="big-score"><b>{roundScore.human}</b><span>—</span><b>{roundScore.bot}</b></div><div className="score-details"><span>Pişti <b>{humanPistiCount} / {botPistiCount}</b></span><span>Toplanan <b>{state.human.captured.length} / {state.bot.captured.length}</b></span></div>{mode === "countdown101" && <p>Kalan sayı: <b>{countdownScore.human} — {countdownScore.bot}</b></p>}{(mode === "target51" || mode === "target101") && <p>Seri toplamı: <b>{seriesScore.human} — {seriesScore.bot}</b></p>}<div className="result-actions"><button className="primary-button" onClick={() => matchFinished ? startGame(mode, true) : nextRound()}>{matchFinished ? "Yeniden oyna" : "Sonraki el"}</button><button className="secondary-button" onClick={() => setScreen("menu")}>Menü</button></div></div></div>
-      )}
+      {state.status === "round-end" && <div className="result-overlay"><div className="result-modal"><small>EL TAMAMLANDI</small><h2>{roundScore.human > roundScore.bot ? "Bu eli kazandın" : roundScore.human < roundScore.bot ? "Bu eli bot kazandı" : "El berabere"}</h2><div className="big-score"><b>{roundScore.human}</b><span>—</span><b>{roundScore.bot}</b></div><div className="score-details"><span>Pişti <b>{humanPistiCount} / {botPistiCount}</b></span><span>Toplanan <b>{state.human.captured.length} / {state.bot.captured.length}</b></span></div>{mode === "countdown101" && <p>Kalan sayı: <b>{countdownScore.human} — {countdownScore.bot}</b></p>}{(mode === "target51" || mode === "target101") && <p>Seri toplamı: <b>{seriesScore.human} — {seriesScore.bot}</b></p>}<div className="result-actions"><button className="primary-button" onClick={() => matchFinished ? startGame(mode, true) : nextRound()}>{matchFinished ? "Yeniden oyna" : "Sonraki el"}</button><button className="secondary-button" onClick={() => setScreen("menu")}>Menü</button></div></div></div>}
 
       <SettingsModal open={showSettings} preferences={preferences} setPreferences={setPreferences} onClose={() => setShowSettings(false)} onReset={resetLocalData} />
     </main>
   );
 }
 
-function Brand({ compact = false }: { compact?: boolean }) {
-  return <div className="brand"><div className="brand-mark">P</div><div><strong>PIŞTI</strong>{!compact && <span>browser card game</span>}</div></div>;
-}
-
-function PlayerLabel({ name, subtitle, bot = false }: { name: string; subtitle: string; bot?: boolean }) {
-  return <div className="player-label"><div className={`avatar ${bot ? "bot-avatar" : ""}`}>{name[0]}</div><div><strong>{name}</strong><span>{subtitle}</span></div></div>;
-}
-
-function CapturePile({ label, count, side }: { label: string; count: number; side: Player }) {
-  return <div className={`capture-pile capture-pile-${side}`}><CardView hidden compact /><span>{label}</span><b>{count}</b></div>;
-}
-
-function Stat({ label, value }: { label: string; value: number }) {
-  return <div className="stat-card"><span>{label}</span><b>{value}</b></div>;
-}
-
-function Modal({ open, onClose, title, children }: { open: boolean; onClose: () => void; title: string; children: React.ReactNode }) {
-  if (!open) return null;
-  return <div className="modal-backdrop" onMouseDown={(event) => event.currentTarget === event.target && onClose()}><div className="modal"><div className="modal-head"><h2>{title}</h2><button className="icon-button" onClick={onClose}>×</button></div>{children}</div></div>;
-}
-
-function RulesModal({ open, onClose }: { open: boolean; onClose: () => void }) {
-  return <Modal open={open} onClose={onClose} title="Pişti Kuralları"><div className="rules"><p>Aynı değerli kartı veya Vale (J) atarak masadaki kartları toplarsın. Masada yalnızca bir kart varken aynı değeri atarsan Pişti olur.</p><div className="rule-list"><span><b>+10</b> Normal Pişti</span><span><b>+20</b> Vale üstüne Vale Pişti</span><span><b>+3</b> En çok kart</span><span><b>+3</b> Karo 10</span><span><b>+2</b> Sinek 2</span><span><b>+1</b> Her As ve Vale</span></div><p className="muted">Deste bittiğinde masada kalan kartlar, masayı en son toplamış oyuncuya gider.</p></div></Modal>;
-}
-
-function SettingsModal({ open, preferences, setPreferences, onClose, onReset }: { open: boolean; preferences: Preferences; setPreferences: React.Dispatch<React.SetStateAction<Preferences>>; onClose: () => void; onReset: () => void; }) {
-  return <Modal open={open} onClose={onClose} title="Ayarlar"><div className="settings-list"><label><div><b>Ses efektleri</b><small>Kağıt, kart ve masa sesleri</small></div><input type="checkbox" checked={preferences.sound} onChange={(event) => setPreferences((current) => ({ ...current, sound: event.target.checked }))} /></label><label><div><b>Animasyonları azalt</b><small>Daha hızlı geçişler</small></div><input type="checkbox" checked={preferences.reducedMotion} onChange={(event) => setPreferences((current) => ({ ...current, reducedMotion: event.target.checked }))} /></label><button className="danger-button" onClick={onReset}>Tüm yerel verileri temizle</button></div></Modal>;
-}
+function Brand({ compact = false }: { compact?: boolean }) { return <div className="brand"><div className="brand-mark">P</div><div><strong>PIŞTI</strong>{!compact && <span>browser card game</span>}</div></div>; }
+function PlayerLabel({ name, subtitle, bot = false }: { name: string; subtitle: string; bot?: boolean }) { return <div className="player-label"><div className={`avatar ${bot ? "bot-avatar" : ""}`}>{name[0]}</div><div><strong>{name}</strong><span>{subtitle}</span></div></div>; }
+function CapturePile({ label, count, side }: { label: string; count: number; side: Player }) { return <div className={`capture-pile capture-pile-${side}`}><CardView hidden compact /><span>{label}</span><b>{count}</b></div>; }
+function Stat({ label, value }: { label: string; value: number }) { return <div className="stat-card"><span>{label}</span><b>{value}</b></div>; }
+function Modal({ open, onClose, title, children }: { open: boolean; onClose: () => void; title: string; children: React.ReactNode }) { if (!open) return null; return <div className="modal-backdrop" onMouseDown={(event) => event.currentTarget === event.target && onClose()}><div className="modal"><div className="modal-head"><h2>{title}</h2><button className="icon-button" onClick={onClose}>×</button></div>{children}</div></div>; }
+function RulesModal({ open, onClose }: { open: boolean; onClose: () => void }) { return <Modal open={open} onClose={onClose} title="Pişti Kuralları"><div className="rules"><p>Aynı değerli kartı veya Vale (J) atarak masadaki kartları toplarsın. Masada yalnızca bir kart varken aynı değeri atarsan Pişti olur.</p><div className="rule-list"><span><b>+10</b> Normal Pişti</span><span><b>+20</b> Vale üstüne Vale Pişti</span><span><b>+3</b> En çok kart</span><span><b>+3</b> Karo 10</span><span><b>+2</b> Sinek 2</span><span><b>+1</b> Her As ve Vale</span></div><p className="muted">Deste bittiğinde masada kalan kartlar, masayı en son toplamış oyuncuya gider.</p></div></Modal>; }
+function SettingsModal({ open, preferences, setPreferences, onClose, onReset }: { open: boolean; preferences: Preferences; setPreferences: React.Dispatch<React.SetStateAction<Preferences>>; onClose: () => void; onReset: () => void; }) { return <Modal open={open} onClose={onClose} title="Ayarlar"><div className="settings-list"><label><div><b>Ses efektleri</b><small>Kağıt, kart ve masa sesleri</small></div><input type="checkbox" checked={preferences.sound} onChange={(event) => setPreferences((current) => ({ ...current, sound: event.target.checked }))} /></label><label><div><b>Animasyonları azalt</b><small>Daha hızlı geçişler</small></div><input type="checkbox" checked={preferences.reducedMotion} onChange={(event) => setPreferences((current) => ({ ...current, reducedMotion: event.target.checked }))} /></label><button className="danger-button" onClick={onReset}>Tüm yerel verileri temizle</button></div></Modal>; }
