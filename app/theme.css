@@ -52,35 +52,34 @@ button:focus-visible, input:focus-visible { outline-color: rgba(59, 130, 246, .9
 .result-dot.win { background: #3b82f6; }
 .settings-list input { accent-color: #3b82f6; }
 
+/* Preserve traditional suit colors. */
 .card-face.red { color: #d63d47; }
 .card-face.black { color: #161b18; }
 
-.face-card .card-center { inset: 22px 12px; font-size: initial; }
-.face-art { position: relative; width: 100%; height: 100%; overflow: hidden; border: 1px solid rgba(15, 23, 42, .14); border-radius: 6px; background: linear-gradient(180deg, #f8f1e5, #efe3d1); }
-.face-art.red { --court: #bf3341; --court-soft: #f1b6bc; --court-dark: #78222b; }
-.face-art.black { --court: #26394c; --court-soft: #bfcbd7; --court-dark: #172433; }
-.face-half { position: absolute; left: 0; width: 100%; height: 50%; overflow: hidden; }
-.face-half-top { top: 0; }
-.face-half-bottom { bottom: 0; transform: rotate(180deg); }
-.face-role { position: absolute; top: 3px; left: 50%; transform: translateX(-50%); font: 700 6px/1 ui-sans-serif, system-ui; letter-spacing: .13em; color: var(--court-dark); opacity: .72; }
-.face-crown { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); color: #c89a38; font-size: 15px; line-height: 1; }
-.face-portrait { position: absolute; top: 19px; left: 50%; width: 31px; height: 27px; transform: translateX(-50%); }
-.face-hair { position: absolute; inset: 0 1px 4px; border-radius: 50% 50% 40% 40%; background: #5b432f; }
-.face-head { position: absolute; left: 50%; top: 5px; width: 21px; height: 20px; transform: translateX(-50%); border-radius: 45% 45% 42% 42%; background: #e7bd96; border: 1px solid rgba(70, 44, 27, .18); }
-.face-eye { position: absolute; top: 12px; width: 2px; height: 2px; border-radius: 50%; background: #2c241e; }
-.face-eye-left { left: 9px; }
-.face-eye-right { right: 9px; }
-.face-mouth { position: absolute; left: 50%; top: 18px; width: 7px; height: 3px; transform: translateX(-50%); border-bottom: 1px solid #94515b; border-radius: 50%; }
-.face-costume { position: absolute; left: 50%; top: 43px; width: 54px; height: 26px; transform: translateX(-50%); }
-.face-shoulder { position: absolute; top: 3px; width: 25px; height: 20px; background: var(--court); border: 2px solid #d6b766; }
-.face-shoulder-left { left: 1px; border-radius: 12px 5px 5px 3px; transform: rotate(7deg); }
-.face-shoulder-right { right: 1px; border-radius: 5px 12px 3px 5px; transform: rotate(-7deg); }
-.face-suit { position: absolute; inset: 0; display: grid; place-items: center; color: var(--court-dark); font-size: 17px; text-shadow: 0 1px #fff7e9; }
-.playing-card.compact.face-card .card-center { inset: 16px 8px; }
-.playing-card.compact.face-card .face-role { display: none; }
-.playing-card.compact.face-card .face-crown { top: 5px; font-size: 11px; }
-.playing-card.compact.face-card .face-portrait { top: 14px; transform: translateX(-50%) scale(.78); }
-.playing-card.compact.face-card .face-costume { top: 34px; transform: translateX(-50%) scale(.72); }
+/* Classic mirrored court-card artwork for J / Q / K. */
+.face-card .card-center {
+  inset: 19px 9px;
+  display: block;
+  font-size: initial;
+  opacity: 1;
+}
+.court-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  border-radius: 5px;
+  filter: saturate(.98) contrast(1.02);
+}
+.playing-card.face-card {
+  background: linear-gradient(145deg, #fffdf7, #eee7db);
+}
+.playing-card.face-card .card-corner {
+  z-index: 4;
+}
+.playing-card.compact.face-card .card-center { inset: 14px 6px; }
+.playing-card.compact.face-card .card-corner { font-size: 10px; }
+.playing-card.compact.face-card .card-corner.top { top: 5px; left: 5px; }
+.playing-card.compact.face-card .card-corner.bottom { right: 5px; bottom: 5px; }
 
 .capture-pile-bot { justify-self: start; }
 .capture-pile-human { justify-self: end; }
@@ -103,21 +102,51 @@ button:focus-visible, input:focus-visible { outline-color: rgba(59, 130, 246, .9
 .felt-center:has(.empty-table) .empty-table::before,
 .felt-center:has(.empty-table) .empty-table::after { display: none !important; }
 
+/* Deal sequence: flying card and real hand card now share the same timeline. */
 .deal-sequence { position: absolute; inset: 0; z-index: 17; pointer-events: none; overflow: hidden; }
-.deal-ghost { position: absolute; left: 50%; top: 50%; opacity: 0; transform: translate(-50%, -50%); animation-duration: .74s; animation-timing-function: cubic-bezier(.18,.8,.22,1); animation-fill-mode: both; animation-delay: calc(var(--deal-index) * 85ms); }
+.deal-ghost {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  opacity: 0;
+  transform: translate(-50%, -50%);
+  animation-duration: .66s;
+  animation-timing-function: cubic-bezier(.18,.8,.22,1);
+  animation-fill-mode: both;
+  animation-delay: calc(var(--deal-index) * 90ms);
+}
 .deal-ghost.to-bot { animation-name: dealToBot; }
 .deal-ghost.to-human { animation-name: dealToHuman; }
+
+/* Bot cards land at indices 0,2,4,6. Human cards land at 1,3,5,7. */
+.bot-card {
+  animation: revealBotCard .14s ease-out both !important;
+  animation-delay: calc(660ms + (var(--i) * 180ms)) !important;
+}
+.hand-slot {
+  animation: revealHumanCard .14s ease-out both !important;
+  animation-delay: calc(750ms + (var(--i) * 180ms)) !important;
+}
+
+@keyframes revealBotCard {
+  0%, 92% { opacity: 0; transform: translateY(-18px) scale(.92); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes revealHumanCard {
+  0%, 92% { opacity: 0; transform: translateY(18px) scale(.92); pointer-events: none; }
+  100% { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
+}
 @keyframes dealToBot {
-  0% { opacity: 0; transform: translate(-50%, -50%) rotate(6deg) scale(.82); }
-  10% { opacity: 1; }
-  70% { opacity: 1; }
-  100% { opacity: 0; transform: translate(calc(-50% + (var(--deal-index) - 3.5) * 9px), calc(-50% - 31vh)) rotate(-7deg) scale(.8); }
+  0% { opacity: 0; transform: translate(-50%, -50%) rotate(7deg) scale(.82); }
+  9% { opacity: 1; }
+  76% { opacity: 1; }
+  100% { opacity: 0; transform: translate(calc(-50% + (var(--deal-index) - 3.5) * 9px), calc(-50% - 31vh)) rotate(-6deg) scale(.8); }
 }
 @keyframes dealToHuman {
-  0% { opacity: 0; transform: translate(-50%, -50%) rotate(-6deg) scale(.82); }
-  10% { opacity: 1; }
-  70% { opacity: 1; }
-  100% { opacity: 0; transform: translate(calc(-50% + (var(--deal-index) - 3.5) * 14px), calc(-50% + 31vh)) rotate(7deg) scale(.9); }
+  0% { opacity: 0; transform: translate(-50%, -50%) rotate(-7deg) scale(.82); }
+  9% { opacity: 1; }
+  76% { opacity: 1; }
+  100% { opacity: 0; transform: translate(calc(-50% + (var(--deal-index) - 3.5) * 14px), calc(-50% + 31vh)) rotate(6deg) scale(.9); }
 }
 
 [data-pisti-owner="human"] [data-effect-element="flash"] { background: radial-gradient(circle at center, rgba(74, 222, 128, .36), transparent 27%), rgba(255,255,255,.04) !important; }
@@ -136,10 +165,15 @@ button:focus-visible, input:focus-visible { outline-color: rgba(59, 130, 246, .9
 @media (max-width: 620px) {
   @keyframes collectToRight { 100% { opacity: 0; transform: translate(calc(-50% + 42vw), calc(-50% + 15px)) rotate(18deg) scale(.42); } }
   @keyframes collectToLeft { 100% { opacity: 0; transform: translate(calc(-50% - 42vw), calc(-50% - 15px)) rotate(-18deg) scale(.42); } }
-  .face-card .card-center { inset: 18px 9px; }
+  .face-card .card-center { inset: 16px 7px; }
   .bot-zone .player-label span,
   .human-zone .player-label span { display: block; font-size: 8px; }
 }
 
 .reduce-motion .deal-sequence,
 .reduce-motion .capture-flight { display: none; }
+.reduce-motion .bot-card,
+.reduce-motion .hand-slot {
+  animation-delay: 0ms !important;
+  animation-duration: .01ms !important;
+}
