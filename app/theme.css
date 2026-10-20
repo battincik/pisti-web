@@ -1,0 +1,193 @@
+:root {
+  --bg: #05070b;
+  --bg-soft: #0b0f16;
+  --panel: rgba(16, 21, 30, .9);
+  --panel-strong: #111722;
+  --line: rgba(148, 163, 184, .14);
+  --text: #eef2f7;
+  --muted: #8b96a8;
+  --accent: #3b82f6;
+  --accent-strong: #2563eb;
+  --felt: #121923;
+  --felt-dark: #080c12;
+  --shadow: 0 22px 60px rgba(0, 0, 0, .46);
+}
+
+html { background: #05070b; }
+body { background: #05070b; }
+
+button:focus-visible,
+input:focus-visible {
+  outline-color: rgba(59, 130, 246, .9);
+}
+
+::selection { background: rgba(59, 130, 246, .28); }
+
+.menu-page,
+.stats-page,
+.game-page,
+.loading-screen {
+  background:
+    radial-gradient(circle at 50% -10%, rgba(59, 130, 246, .14), transparent 35%),
+    linear-gradient(180deg, #090d14 0%, #040609 100%);
+}
+
+.brand-mark {
+  background: linear-gradient(145deg, #f5f7fa, #b9c1cd);
+  color: #0a0d12;
+}
+
+.top-actions button,
+.back-button {
+  color: #d9e0e8;
+}
+
+.eyebrow,
+.hero-copy h1 em,
+.panel-title button,
+.turn-message,
+.history-head small,
+.result-modal > small,
+.rule-list b {
+  color: #73a7ff;
+}
+
+.hero-copy > p { color: #98a4b4; }
+
+.mode-panel,
+.history-card,
+.stat-card,
+.modal,
+.result-modal {
+  background: linear-gradient(180deg, rgba(20, 27, 38, .96), rgba(8, 12, 18, .96));
+  border-color: rgba(148, 163, 184, .14);
+}
+
+.panel-title { color: #d7dee8; }
+
+.mode-card {
+  background: rgba(148, 163, 184, .025);
+  border-color: rgba(148, 163, 184, .12);
+}
+
+.mode-card:hover {
+  border-color: rgba(148, 163, 184, .24);
+}
+
+.mode-card.active {
+  border-color: rgba(59, 130, 246, .6);
+  background: rgba(37, 99, 235, .14);
+}
+
+.mode-card > span { color: #97a3b3; }
+.mode-card.active > span {
+  color: #8db6ff;
+  border-color: rgba(59, 130, 246, .38);
+}
+.mode-card small { color: #7f8998; }
+
+.primary-button {
+  background: linear-gradient(180deg, #4f91ff, #2563eb);
+  color: #f8fbff;
+  box-shadow: 0 9px 28px rgba(37, 99, 235, .24);
+}
+
+.local-note { color: #697585; }
+.local-note::first-letter { color: #60a5fa; }
+
+.table-area {
+  background:
+    radial-gradient(circle at center, rgba(59, 130, 246, .12), transparent 36%),
+    linear-gradient(180deg, rgba(14, 19, 28, .97), rgba(5, 8, 13, .99));
+}
+
+.table-area::before {
+  border-color: rgba(148, 163, 184, .08);
+}
+
+.avatar {
+  background: rgba(59, 130, 246, .14);
+  border-color: rgba(59, 130, 246, .28);
+  color: #8cb7ff;
+}
+
+.bot-avatar {
+  background: rgba(148, 163, 184, .07);
+  border-color: rgba(148, 163, 184, .14);
+  color: #d1d7e0;
+}
+
+.pile-count {
+  background: #070a0f;
+}
+
+.game-toast {
+  background: rgba(6, 9, 14, .9);
+  color: #dce3ec;
+  border-color: rgba(148, 163, 184, .16);
+}
+
+.result-dot.win { background: #3b82f6; }
+
+.settings-list input { accent-color: #3b82f6; }
+
+/* Player-specific Pişti colors: human = green, bot = blue. */
+[data-pisti-owner="human"] [data-effect-element="flash"] {
+  background:
+    radial-gradient(circle at center, rgba(74, 222, 128, .36), transparent 27%),
+    rgba(255,255,255,.04) !important;
+}
+
+[data-pisti-owner="human"] [data-effect-element="ring"] {
+  border-color: rgba(74, 222, 128, .65) !important;
+  box-shadow: 0 0 58px rgba(34, 197, 94, .26), inset 0 0 58px rgba(34, 197, 94, .12) !important;
+}
+
+[data-pisti-owner="human"] [data-effect-element="spark"] {
+  background: linear-gradient(#dcffe9, #22c55e) !important;
+}
+
+[data-pisti-owner="human"] [data-effect-element="badge"] {
+  color: #86efac !important;
+  border-color: rgba(74, 222, 128, .38) !important;
+  background: rgba(5, 26, 14, .72) !important;
+}
+
+[data-pisti-owner="human"] [data-effect-element="title"] {
+  color: #ecfff3 !important;
+  text-shadow: 0 0 34px rgba(34, 197, 94, .3), 0 10px 28px rgba(0,0,0,.55) !important;
+}
+
+[data-pisti-owner="human"] [data-effect-element="card"] {
+  box-shadow: 0 26px 70px rgba(0,0,0,.48), 0 0 0 2px rgba(74, 222, 128, .3) inset, 0 0 38px rgba(34, 197, 94, .2) !important;
+}
+
+[data-pisti-owner="bot"] [data-effect-element="flash"] {
+  background:
+    radial-gradient(circle at center, rgba(96, 165, 250, .38), transparent 27%),
+    rgba(255,255,255,.04) !important;
+}
+
+[data-pisti-owner="bot"] [data-effect-element="ring"] {
+  border-color: rgba(96, 165, 250, .68) !important;
+  box-shadow: 0 0 60px rgba(37, 99, 235, .3), inset 0 0 58px rgba(37, 99, 235, .14) !important;
+}
+
+[data-pisti-owner="bot"] [data-effect-element="spark"] {
+  background: linear-gradient(#e0efff, #3b82f6) !important;
+}
+
+[data-pisti-owner="bot"] [data-effect-element="badge"] {
+  color: #93c5fd !important;
+  border-color: rgba(96, 165, 250, .42) !important;
+  background: rgba(6, 18, 40, .76) !important;
+}
+
+[data-pisti-owner="bot"] [data-effect-element="title"] {
+  color: #eff6ff !important;
+  text-shadow: 0 0 36px rgba(59, 130, 246, .34), 0 10px 28px rgba(0,0,0,.55) !important;
+}
+
+[data-pisti-owner="bot"] [data-effect-element="card"] {
+  box-shadow: 0 26px 70px rgba(0,0,0,.48), 0 0 0 2px rgba(96, 165, 250, .34) inset, 0 0 40px rgba(37, 99, 235, .22) !important;
+}
