@@ -21,6 +21,37 @@ export const suitName: Record<Suit, string> = {
   spades: "Maça",
 };
 
+const rankValue: Record<Rank, number> = {
+  A: 1,
+  "2": 2,
+  "3": 3,
+  "4": 4,
+  "5": 5,
+  "6": 6,
+  "7": 7,
+  "8": 8,
+  "9": 9,
+  "10": 10,
+  J: 11,
+  Q: 12,
+  K: 13,
+};
+
+const suitValue: Record<Suit, number> = {
+  clubs: 0,
+  diamonds: 1,
+  hearts: 2,
+  spades: 3,
+};
+
+export function sortCardsAscending(cards: Card[]): Card[] {
+  return [...cards].sort((a, b) => {
+    const rankDifference = rankValue[a.rank] - rankValue[b.rank];
+    if (rankDifference !== 0) return rankDifference;
+    return suitValue[a.suit] - suitValue[b.suit];
+  });
+}
+
 export function createDeck(): Card[] {
   return suits.flatMap((suit) => ranks.map((rank) => ({ id: `${suit}-${rank}`, suit, rank })));
 }
