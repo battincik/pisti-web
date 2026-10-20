@@ -12,7 +12,7 @@
   top: 50%;
   opacity: 0;
   transform: translate(-50%, -50%);
-  animation-duration: .3s !important;
+  animation-duration: .15s !important;
   animation-delay: 0s !important;
   animation-timing-function: cubic-bezier(.2,.78,.24,1) !important;
   animation-fill-mode: both !important;
