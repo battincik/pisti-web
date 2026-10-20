@@ -1,0 +1,179 @@
+:root {
+  --bg: #05070b;
+  --bg-soft: #0b0f16;
+  --panel: rgba(16, 21, 30, .9);
+  --panel-strong: #111722;
+  --line: rgba(148, 163, 184, .14);
+  --text: #eef2f7;
+  --muted: #8b96a8;
+  --accent: #3b82f6;
+  --accent-strong: #2563eb;
+  --felt: #121923;
+  --felt-dark: #080c12;
+  --shadow: 0 22px 60px rgba(0, 0, 0, .46);
+}
+
+html { background: #05070b; }
+body { background: #05070b; }
+button:focus-visible, input:focus-visible { outline-color: rgba(59, 130, 246, .9); }
+::selection { background: rgba(59, 130, 246, .28); }
+
+.menu-page,
+.stats-page,
+.game-page,
+.loading-screen {
+  background:
+    radial-gradient(circle at 50% -10%, rgba(59, 130, 246, .14), transparent 35%),
+    linear-gradient(180deg, #090d14 0%, #040609 100%);
+}
+
+.brand-mark { background: linear-gradient(145deg, #f5f7fa, #b9c1cd); color: #0a0d12; }
+.top-actions button, .back-button { color: #d9e0e8; }
+.eyebrow, .hero-copy h1 em, .panel-title button, .turn-message, .history-head small, .result-modal > small, .rule-list b { color: #73a7ff; }
+.hero-copy > p { color: #98a4b4; }
+.mode-panel, .history-card, .stat-card, .modal, .result-modal { background: linear-gradient(180deg, rgba(20, 27, 38, .96), rgba(8, 12, 18, .96)); border-color: rgba(148, 163, 184, .14); }
+.panel-title { color: #d7dee8; }
+.mode-card { background: rgba(148, 163, 184, .025); border-color: rgba(148, 163, 184, .12); }
+.mode-card:hover { border-color: rgba(148, 163, 184, .24); }
+.mode-card.active { border-color: rgba(59, 130, 246, .6); background: rgba(37, 99, 235, .14); }
+.mode-card > span { color: #97a3b3; }
+.mode-card.active > span { color: #8db6ff; border-color: rgba(59, 130, 246, .38); }
+.mode-card small { color: #7f8998; }
+.primary-button { background: linear-gradient(180deg, #4f91ff, #2563eb); color: #f8fbff; box-shadow: 0 9px 28px rgba(37, 99, 235, .24); }
+.local-note { color: #697585; }
+.local-note::first-letter { color: #60a5fa; }
+
+.table-area { background: radial-gradient(circle at center, rgba(59, 130, 246, .12), transparent 36%), linear-gradient(180deg, rgba(14, 19, 28, .97), rgba(5, 8, 13, .99)); }
+.table-area::before { border-color: rgba(148, 163, 184, .08); }
+.avatar { background: rgba(59, 130, 246, .14); border-color: rgba(59, 130, 246, .28); color: #8cb7ff; }
+.bot-avatar { background: rgba(148, 163, 184, .07); border-color: rgba(148, 163, 184, .14); color: #d1d7e0; }
+.pile-count { background: #070a0f; }
+.game-toast { background: rgba(6, 9, 14, .9); color: #dce3ec; border-color: rgba(148, 163, 184, .16); }
+.result-dot.win { background: #3b82f6; }
+.settings-list input { accent-color: #3b82f6; }
+
+/* Preserve traditional suit colors. */
+.card-face.red { color: #d63d47; }
+.card-face.black { color: #161b18; }
+
+/* Classic mirrored court-card artwork for J / Q / K. */
+.face-card .card-center {
+  inset: 19px 9px;
+  display: block;
+  font-size: initial;
+  opacity: 1;
+}
+.court-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  border-radius: 5px;
+  filter: saturate(.98) contrast(1.02);
+}
+.playing-card.face-card {
+  background: linear-gradient(145deg, #fffdf7, #eee7db);
+}
+.playing-card.face-card .card-corner {
+  z-index: 4;
+}
+.playing-card.compact.face-card .card-center { inset: 14px 6px; }
+.playing-card.compact.face-card .card-corner { font-size: 10px; }
+.playing-card.compact.face-card .card-corner.top { top: 5px; left: 5px; }
+.playing-card.compact.face-card .card-corner.bottom { right: 5px; bottom: 5px; }
+
+.capture-pile-bot { justify-self: start; }
+.capture-pile-human { justify-self: end; }
+.capture-pile-bot b { color: #93c5fd; }
+.capture-pile-human b { color: #86efac; }
+.capture-flight { position: absolute; inset: 0; z-index: 18; pointer-events: none; }
+.capture-flight-card { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%) rotate(calc((var(--capture-index) - 2) * 4deg)); }
+.capture-flight-human .capture-flight-card { animation: collectToRight .72s cubic-bezier(.18,.82,.22,1) both; animation-delay: calc(var(--capture-index) * 22ms); }
+.capture-flight-bot .capture-flight-card { animation: collectToLeft .72s cubic-bezier(.18,.82,.22,1) both; animation-delay: calc(var(--capture-index) * 22ms); }
+@keyframes collectToRight {
+  0% { opacity: 1; transform: translate(-50%, -50%) rotate(calc((var(--capture-index) - 2) * 4deg)) scale(1); filter: blur(0); }
+  38% { transform: translate(calc(-50% + 24px), calc(-50% + 8px)) rotate(8deg) scale(.92); }
+  100% { opacity: 0; transform: translate(calc(-50% + min(36vw, 430px)), calc(-50% + 12px)) rotate(22deg) scale(.48); filter: blur(1.5px); }
+}
+@keyframes collectToLeft {
+  0% { opacity: 1; transform: translate(-50%, -50%) rotate(calc((var(--capture-index) - 2) * 4deg)) scale(1); filter: blur(0); }
+  38% { transform: translate(calc(-50% - 24px), calc(-50% - 8px)) rotate(-8deg) scale(.92); }
+  100% { opacity: 0; transform: translate(calc(-50% - min(36vw, 430px)), calc(-50% - 12px)) rotate(-22deg) scale(.48); filter: blur(1.5px); }
+}
+.felt-center:has(.empty-table) .empty-table::before,
+.felt-center:has(.empty-table) .empty-table::after { display: none !important; }
+
+/* Deal sequence: flying card and real hand card now share the same timeline. */
+.deal-sequence { position: absolute; inset: 0; z-index: 17; pointer-events: none; overflow: hidden; }
+.deal-ghost {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  opacity: 0;
+  transform: translate(-50%, -50%);
+  animation-duration: .66s;
+  animation-timing-function: cubic-bezier(.18,.8,.22,1);
+  animation-fill-mode: both;
+  animation-delay: calc(var(--deal-index) * 90ms);
+}
+.deal-ghost.to-bot { animation-name: dealToBot; }
+.deal-ghost.to-human { animation-name: dealToHuman; }
+
+/* Bot cards land at indices 0,2,4,6. Human cards land at 1,3,5,7. */
+.bot-card {
+  animation: revealBotCard .14s ease-out both !important;
+  animation-delay: calc(660ms + (var(--i) * 180ms)) !important;
+}
+.hand-slot {
+  animation: revealHumanCard .14s ease-out both !important;
+  animation-delay: calc(750ms + (var(--i) * 180ms)) !important;
+}
+
+@keyframes revealBotCard {
+  0%, 92% { opacity: 0; transform: translateY(-18px) scale(.92); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes revealHumanCard {
+  0%, 92% { opacity: 0; transform: translateY(18px) scale(.92); pointer-events: none; }
+  100% { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
+}
+@keyframes dealToBot {
+  0% { opacity: 0; transform: translate(-50%, -50%) rotate(7deg) scale(.82); }
+  9% { opacity: 1; }
+  76% { opacity: 1; }
+  100% { opacity: 0; transform: translate(calc(-50% + (var(--deal-index) - 3.5) * 9px), calc(-50% - 31vh)) rotate(-6deg) scale(.8); }
+}
+@keyframes dealToHuman {
+  0% { opacity: 0; transform: translate(-50%, -50%) rotate(-7deg) scale(.82); }
+  9% { opacity: 1; }
+  76% { opacity: 1; }
+  100% { opacity: 0; transform: translate(calc(-50% + (var(--deal-index) - 3.5) * 14px), calc(-50% + 31vh)) rotate(6deg) scale(.9); }
+}
+
+[data-pisti-owner="human"] [data-effect-element="flash"] { background: radial-gradient(circle at center, rgba(74, 222, 128, .36), transparent 27%), rgba(255,255,255,.04) !important; }
+[data-pisti-owner="human"] [data-effect-element="ring"] { border-color: rgba(74, 222, 128, .65) !important; box-shadow: 0 0 58px rgba(34, 197, 94, .26), inset 0 0 58px rgba(34, 197, 94, .12) !important; }
+[data-pisti-owner="human"] [data-effect-element="spark"] { background: linear-gradient(#dcffe9, #22c55e) !important; }
+[data-pisti-owner="human"] [data-effect-element="badge"] { color: #86efac !important; border-color: rgba(74, 222, 128, .38) !important; background: rgba(5, 26, 14, .72) !important; }
+[data-pisti-owner="human"] [data-effect-element="title"] { color: #ecfff3 !important; text-shadow: 0 0 34px rgba(34, 197, 94, .3), 0 10px 28px rgba(0,0,0,.55) !important; }
+[data-pisti-owner="human"] [data-effect-element="card"] { box-shadow: 0 26px 70px rgba(0,0,0,.48), 0 0 0 2px rgba(74, 222, 128, .3) inset, 0 0 38px rgba(34, 197, 94, .2) !important; }
+[data-pisti-owner="bot"] [data-effect-element="flash"] { background: radial-gradient(circle at center, rgba(96, 165, 250, .38), transparent 27%), rgba(255,255,255,.04) !important; }
+[data-pisti-owner="bot"] [data-effect-element="ring"] { border-color: rgba(96, 165, 250, .68) !important; box-shadow: 0 0 60px rgba(37, 99, 235, .3), inset 0 0 58px rgba(37, 99, 235, .14) !important; }
+[data-pisti-owner="bot"] [data-effect-element="spark"] { background: linear-gradient(#e0efff, #3b82f6) !important; }
+[data-pisti-owner="bot"] [data-effect-element="badge"] { color: #93c5fd !important; border-color: rgba(96, 165, 250, .42) !important; background: rgba(6, 18, 40, .76) !important; }
+[data-pisti-owner="bot"] [data-effect-element="title"] { color: #eff6ff !important; text-shadow: 0 0 36px rgba(59, 130, 246, .34), 0 10px 28px rgba(0,0,0,.55) !important; }
+[data-pisti-owner="bot"] [data-effect-element="card"] { box-shadow: 0 26px 70px rgba(0,0,0,.48), 0 0 0 2px rgba(96, 165, 250, .34) inset, 0 0 40px rgba(37, 99, 235, .22) !important; }
+
+@media (max-width: 620px) {
+  @keyframes collectToRight { 100% { opacity: 0; transform: translate(calc(-50% + 42vw), calc(-50% + 15px)) rotate(18deg) scale(.42); } }
+  @keyframes collectToLeft { 100% { opacity: 0; transform: translate(calc(-50% - 42vw), calc(-50% - 15px)) rotate(-18deg) scale(.42); } }
+  .face-card .card-center { inset: 16px 7px; }
+  .bot-zone .player-label span,
+  .human-zone .player-label span { display: block; font-size: 8px; }
+}
+
+.reduce-motion .deal-sequence,
+.reduce-motion .capture-flight { display: none; }
+.reduce-motion .bot-card,
+.reduce-motion .hand-slot {
+  animation-delay: 0ms !important;
+  animation-duration: .01ms !important;
+}

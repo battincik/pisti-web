@@ -9,6 +9,7 @@ type Effect = {
   label: string;
   bonus: string;
   jack: boolean;
+  owner: "human" | "bot";
 } | null;
 
 export default function GameEffects() {
@@ -32,11 +33,14 @@ export default function GameEffects() {
       if (!text.includes("Pişti")) return;
 
       const jack = text.includes("Vale Pişti");
+      const owner: "human" | "bot" = text.startsWith("Bot") ? "bot" : "human";
+
       setEffect({
         id: Date.now(),
         label: jack ? "VALE PİŞTİ!" : "PİŞTİ!",
         bonus: jack ? "+20" : "+10",
         jack,
+        owner,
       });
 
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
@@ -56,22 +60,31 @@ export default function GameEffects() {
   if (!effect) return null;
 
   return (
-    <div className={`${styles.effectLayer} ${effect.jack ? styles.jack : ""}`} key={effect.id} aria-hidden="true">
-      <div className={styles.flash} />
-      <div className={styles.ring} />
-      <div className={styles.ringSecondary} />
+    <div
+      className={`${styles.effectLayer} ${effect.jack ? styles.jack : ""}`}
+      key={effect.id}
+      aria-hidden="true"
+      data-pisti-owner={effect.owner}
+    >
+      <div className={styles.flash} data-effect-element="flash" />
+      <div className={styles.ring} data-effect-element="ring" />
+      <div className={styles.ringSecondary} data-effect-element="ring" />
       <div className={styles.sparks}>
         {Array.from({ length: 14 }).map((_, index) => (
-          <i key={index} style={{ "--spark": index } as React.CSSProperties} />
+          <i
+            key={index}
+            data-effect-element="spark"
+            style={{ "--spark": index } as React.CSSProperties}
+          />
         ))}
       </div>
-      <div className={styles.pistiCard}>
+      <div className={styles.pistiCard} data-effect-element="card">
         <span>{effect.jack ? "J" : "★"}</span>
         <small>{effect.jack ? "VALE" : "PIŞTI"}</small>
       </div>
       <div className={styles.copy}>
-        <strong>{effect.label}</strong>
-        <span>{effect.bonus} PUAN</span>
+        <strong data-effect-element="title">{effect.label}</strong>
+        <span data-effect-element="badge">{effect.bonus} PUAN</span>
       </div>
     </div>
   );

@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "./theme.css";
+import "./deal-sync.css";
 
 export const metadata: Metadata = {
   title: "Pişti — Browser Card Game",
