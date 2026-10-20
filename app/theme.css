@@ -31,11 +31,7 @@ button:focus-visible, input:focus-visible { outline-color: rgba(59, 130, 246, .9
 .top-actions button, .back-button { color: #d9e0e8; }
 .eyebrow, .hero-copy h1 em, .panel-title button, .turn-message, .history-head small, .result-modal > small, .rule-list b { color: #73a7ff; }
 .hero-copy > p { color: #98a4b4; }
-
-.mode-panel, .history-card, .stat-card, .modal, .result-modal {
-  background: linear-gradient(180deg, rgba(20, 27, 38, .96), rgba(8, 12, 18, .96));
-  border-color: rgba(148, 163, 184, .14);
-}
+.mode-panel, .history-card, .stat-card, .modal, .result-modal { background: linear-gradient(180deg, rgba(20, 27, 38, .96), rgba(8, 12, 18, .96)); border-color: rgba(148, 163, 184, .14); }
 .panel-title { color: #d7dee8; }
 .mode-card { background: rgba(148, 163, 184, .025); border-color: rgba(148, 163, 184, .12); }
 .mode-card:hover { border-color: rgba(148, 163, 184, .24); }
@@ -47,11 +43,7 @@ button:focus-visible, input:focus-visible { outline-color: rgba(59, 130, 246, .9
 .local-note { color: #697585; }
 .local-note::first-letter { color: #60a5fa; }
 
-.table-area {
-  background:
-    radial-gradient(circle at center, rgba(59, 130, 246, .12), transparent 36%),
-    linear-gradient(180deg, rgba(14, 19, 28, .97), rgba(5, 8, 13, .99));
-}
+.table-area { background: radial-gradient(circle at center, rgba(59, 130, 246, .12), transparent 36%), linear-gradient(180deg, rgba(14, 19, 28, .97), rgba(5, 8, 13, .99)); }
 .table-area::before { border-color: rgba(148, 163, 184, .08); }
 .avatar { background: rgba(59, 130, 246, .14); border-color: rgba(59, 130, 246, .28); color: #8cb7ff; }
 .bot-avatar { background: rgba(148, 163, 184, .07); border-color: rgba(148, 163, 184, .14); color: #d1d7e0; }
@@ -60,11 +52,9 @@ button:focus-visible, input:focus-visible { outline-color: rgba(59, 130, 246, .9
 .result-dot.win { background: #3b82f6; }
 .settings-list input { accent-color: #3b82f6; }
 
-/* Keep classic playing-card face colors unchanged. */
 .card-face.red { color: #d63d47; }
 .card-face.black { color: #161b18; }
 
-/* Illustrated, mirrored J / Q / K faces. */
 .face-card .card-center { inset: 22px 12px; font-size: initial; }
 .face-art { position: relative; width: 100%; height: 100%; overflow: hidden; border: 1px solid rgba(15, 23, 42, .14); border-radius: 6px; background: linear-gradient(180deg, #f8f1e5, #efe3d1); }
 .face-art.red { --court: #bf3341; --court-soft: #f1b6bc; --court-dark: #78222b; }
@@ -92,34 +82,27 @@ button:focus-visible, input:focus-visible { outline-color: rgba(59, 130, 246, .9
 .playing-card.compact.face-card .face-portrait { top: 14px; transform: translateX(-50%) scale(.78); }
 .playing-card.compact.face-card .face-costume { top: 34px; transform: translateX(-50%) scale(.72); }
 
-/* Explicit collection destinations: bot = left, human = right. */
 .capture-pile-bot { justify-self: start; }
 .capture-pile-human { justify-self: end; }
 .capture-pile-bot b { color: #93c5fd; }
 .capture-pile-human b { color: #86efac; }
-
 .capture-flight { position: absolute; inset: 0; z-index: 18; pointer-events: none; }
 .capture-flight-card { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%) rotate(calc((var(--capture-index) - 2) * 4deg)); }
 .capture-flight-human .capture-flight-card { animation: collectToRight .72s cubic-bezier(.18,.82,.22,1) both; animation-delay: calc(var(--capture-index) * 22ms); }
 .capture-flight-bot .capture-flight-card { animation: collectToLeft .72s cubic-bezier(.18,.82,.22,1) both; animation-delay: calc(var(--capture-index) * 22ms); }
-
 @keyframes collectToRight {
   0% { opacity: 1; transform: translate(-50%, -50%) rotate(calc((var(--capture-index) - 2) * 4deg)) scale(1); filter: blur(0); }
   38% { transform: translate(calc(-50% + 24px), calc(-50% + 8px)) rotate(8deg) scale(.92); }
   100% { opacity: 0; transform: translate(calc(-50% + min(36vw, 430px)), calc(-50% + 12px)) rotate(22deg) scale(.48); filter: blur(1.5px); }
 }
-
 @keyframes collectToLeft {
   0% { opacity: 1; transform: translate(-50%, -50%) rotate(calc((var(--capture-index) - 2) * 4deg)) scale(1); filter: blur(0); }
   38% { transform: translate(calc(-50% - 24px), calc(-50% - 8px)) rotate(-8deg) scale(.92); }
   100% { opacity: 0; transform: translate(calc(-50% - min(36vw, 430px)), calc(-50% - 12px)) rotate(-22deg) scale(.48); filter: blur(1.5px); }
 }
-
-/* Disable the previous generic pseudo-card sweep so collection is shown only once. */
 .felt-center:has(.empty-table) .empty-table::before,
 .felt-center:has(.empty-table) .empty-table::after { display: none !important; }
 
-/* Deal eight visual cards from the center deck, alternating bot and human. */
 .deal-sequence { position: absolute; inset: 0; z-index: 17; pointer-events: none; overflow: hidden; }
 .deal-ghost { position: absolute; left: 50%; top: 50%; opacity: 0; transform: translate(-50%, -50%); animation-duration: .74s; animation-timing-function: cubic-bezier(.18,.8,.22,1); animation-fill-mode: both; animation-delay: calc(var(--deal-index) * 85ms); }
 .deal-ghost.to-bot { animation-name: dealToBot; }
@@ -137,7 +120,6 @@ button:focus-visible, input:focus-visible { outline-color: rgba(59, 130, 246, .9
   100% { opacity: 0; transform: translate(calc(-50% + (var(--deal-index) - 3.5) * 14px), calc(-50% + 31vh)) rotate(7deg) scale(.9); }
 }
 
-/* Player-specific Pişti colors: human = green, bot = blue. */
 [data-pisti-owner="human"] [data-effect-element="flash"] { background: radial-gradient(circle at center, rgba(74, 222, 128, .36), transparent 27%), rgba(255,255,255,.04) !important; }
 [data-pisti-owner="human"] [data-effect-element="ring"] { border-color: rgba(74, 222, 128, .65) !important; box-shadow: 0 0 58px rgba(34, 197, 94, .26), inset 0 0 58px rgba(34, 197, 94, .12) !important; }
 [data-pisti-owner="human"] [data-effect-element="spark"] { background: linear-gradient(#dcffe9, #22c55e) !important; }
@@ -155,6 +137,8 @@ button:focus-visible, input:focus-visible { outline-color: rgba(59, 130, 246, .9
   @keyframes collectToRight { 100% { opacity: 0; transform: translate(calc(-50% + 42vw), calc(-50% + 15px)) rotate(18deg) scale(.42); } }
   @keyframes collectToLeft { 100% { opacity: 0; transform: translate(calc(-50% - 42vw), calc(-50% - 15px)) rotate(-18deg) scale(.42); } }
   .face-card .card-center { inset: 18px 9px; }
+  .bot-zone .player-label span,
+  .human-zone .player-label span { display: block; font-size: 8px; }
 }
 
 .reduce-motion .deal-sequence,
