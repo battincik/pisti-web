@@ -1,347 +1,223 @@
 # Pişti Web
 
-A modern, animated, single-player browser implementation of **Pişti**, the classic Turkish card game.
+A polished, animated, single-player browser implementation of **Pişti**, the classic Turkish card game. The project is built as a local-first Next.js application: no account, backend, database, or external API is required to play.
 
-Pişti Web is designed as a fully client-side application. It does not require a backend, account system, API, or remote database. Game state is handled in the browser and persistent user data is stored locally with `localStorage`, which makes the project lightweight, privacy-friendly, easy to deploy, and suitable for Vercel.
+## Highlights
 
-![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=nextdotjs)
-![React](https://img.shields.io/badge/React-19-20232a?logo=react)
-![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)
-![Vercel](https://img.shields.io/badge/Deploy-Vercel-black?logo=vercel)
+- Single-player gameplay against a lightweight rule-based bot
+- Multiple match formats: Single Game, 51 Points, 101 Points, and 101 Countdown
+- Standard Pişti scoring with Jack Pişti support
+- Player-specific Pişti effects: human in green, bot in blue
+- Blue / gray / black application theme while preserving classic red/black playing-card colors
+- Illustrated mirrored J, Q, and K face cards
+- Ascending hand sorting from lowest to highest card value
+- Animated dealing sequence for every new hand
+- Directional collection animation: bot collects left, player collects right
+- Animated card throws, captures, and Pişti celebrations
+- Paper/card/table-inspired procedural Web Audio effects
+- Bot and player Pişti counters shown during the game
+- Responsive layout with reduced-motion support
+- Local statistics, preferences, and recent match history
+- Vercel-ready deployment with zero environment variables
 
-## Overview
+## Technology
 
-The goal of this project is to reproduce the core rules and feel of Pişti while presenting the game through a modern web interface.
+- **Next.js** — application framework and production build
+- **React** — interactive game interface and local state
+- **TypeScript** — game-state and rules safety
+- **CSS** — card visuals, responsive layout, and animations
+- **Web Audio API** — generated paper, card, capture, and table-hit sound effects
+- **localStorage** — local-first persistence for settings, stats, and history
+- **Vercel** — static/serverless-friendly deployment target
 
-The application includes multiple game modes, a lightweight decision-making bot, animated card interactions, local statistics, persistent preferences, responsive layouts, and reduced-motion support.
+## How the Game Works
 
-### Main features
+A standard 52-card deck is shuffled at the beginning of each round. Four cards are placed on the table and four cards are dealt to each player. After both hands are exhausted, another four-card hand is dealt until the deck is empty.
 
-- Single-player gameplay against a local bot
-- Standard 52-card deck
-- Traditional Pişti capture mechanics
-- Normal Pişti and Jack-on-Jack Pişti scoring
-- Special scoring cards
-- Automatic dealing between hands
-- Last-capture handling when the deck is exhausted
-- Multiple match formats
-- Animated card dealing and table movement
-- Sound feedback through the Web Audio API
-- Local statistics and match history
-- Persistent settings using `localStorage`
-- Reduced-motion option
-- Responsive desktop and mobile layout
-- No server-side persistence
-- No authentication
-- No environment variables required
-- Direct Vercel deployment
+A card captures the table when its rank matches the top card. A Jack can capture any non-empty table. If the table contains exactly one card and the matching card captures it, the move is a Pişti. A Jack on a single Jack is treated as a Jack Pişti.
 
-## Game modes
-
-### Single Game
-
-One full deck is played. The player with the highest score at the end of the deck wins.
-
-### 51 Points
-
-Each completed deck contributes to the running match score. The first player to reach **51 points** wins the match.
-
-### 101 Points
-
-A longer version of the same cumulative scoring format. The first player to reach **101 points** wins.
-
-### Countdown from 101
-
-Both players start at **101**. The score earned in each round is subtracted from the player's remaining total. The first player to reach **0** wins.
-
-This mode is represented internally as `countdown101`.
+The final cards left on the table are awarded to the player who most recently captured the table.
 
 ## Scoring
 
 | Event | Points |
 | --- | ---: |
-| Normal Pişti | 10 |
-| Jack on Jack Pişti | 20 |
+| Ace | 1 |
+| Jack | 1 |
+| Clubs 2 | 2 |
+| Diamonds 10 | 3 |
 | Most captured cards | 3 |
-| Ten of Diamonds | 3 |
-| Two of Clubs | 2 |
-| Each Ace | 1 |
-| Each Jack | 1 |
+| Pişti | 10 |
+| Jack Pişti | 20 |
 
-When the deck is exhausted, any cards still remaining on the table are awarded to the player who made the most recent capture.
+## Game Modes
 
-For a more detailed description, see [docs/GAME_RULES.md](docs/GAME_RULES.md).
+### Single Game
 
-## Technology stack
+One full deck is played and the player with the highest round score wins.
 
-### Application
+### 51 Points
 
-- **Next.js 16** — application framework and App Router
-- **React 19** — component model and UI state
-- **TypeScript 5** — typed game domain and application code
+Round scores accumulate until either the player or bot reaches 51 points.
 
-### Browser APIs
+### 101 Points
 
-- **localStorage** — statistics, preferences, and recent match history
-- **Web Audio API** — generated sound effects without audio assets
-- **Crypto API** — identifiers for local history records
+A longer cumulative format. The first side to reach 101 wins.
 
-### Styling
+### 101 Countdown
 
-- Custom CSS
-- CSS Grid and Flexbox
-- CSS keyframe animations
-- Responsive media queries
-- `prefers-reduced-motion` support
+Both sides begin at 101. Each round score is subtracted from the remaining total. The first side to reach zero wins.
 
-There is intentionally no external UI framework or animation dependency. The card table, cards, responsive states, and animations are built directly with React and CSS.
+## Hand Ordering
 
-## Architecture
+The visible hand is kept in deterministic ascending rank order:
 
-The project keeps game rules separate from UI and browser persistence.
+`A → 2 → 3 → ... → 10 → J → Q → K`
 
-```text
-pisti-web/
-├── app/
-│   ├── globals.css
-│   ├── layout.tsx
-│   └── page.tsx
-├── components/
-│   ├── CardView.tsx
-│   └── PistiGame.tsx
-├── lib/
-│   ├── game.ts
-│   └── storage.ts
-├── public/
-│   └── favicon.svg
-└── docs/
-    ├── ARCHITECTURE.md
-    ├── GAME_RULES.md
-    └── STATE_AND_PERSISTENCE.md
-```
+Cards with the same rank are then ordered consistently by suit. This makes the hand easier to scan and avoids random reordering between deals.
 
-The most important architectural principle is that **domain logic does not depend on React**.
+## Bot Strategy
 
-Functions such as deck creation, shuffling, capture checks, card scoring, and bot card selection live in `lib/game.ts`. React is primarily responsible for orchestrating turns, rendering state, animations, and browser persistence.
+The bot uses a compact rule-based strategy rather than random card selection.
 
-See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the detailed flow.
+It prioritizes:
 
-## How the game works internally
+1. Capturing the current table when possible.
+2. Using a matching rank before spending a Jack.
+3. Avoiding high-value or strategically useful cards when discarding.
+4. Adding small randomness to otherwise equivalent discard decisions.
 
-A round begins by generating and shuffling a standard 52-card deck.
+This keeps the implementation understandable while producing more believable gameplay than purely random choices.
 
-```ts
-const deck = shuffle(createDeck());
-```
+## Animation Model
 
-Four cards are placed on the table, four cards are dealt to the player, and four cards are dealt to the bot.
+Visual effects are intentionally separated from the core rules.
 
-After both hands become empty, another four cards are dealt to each side. This continues until the deck has been consumed.
+- Cards are visually dealt from the center toward both players.
+- Played cards animate toward the table.
+- Captured piles animate toward the correct owner: **bot to the left, player to the right**.
+- Pişti triggers a dedicated full-screen effect. The human effect is green and the bot effect is blue.
+- Reduced-motion preferences disable the larger motion sequences without changing gameplay.
 
-### Turn processing
+This separation keeps the game engine deterministic and prevents animation timing from becoming part of the rule logic.
 
-```text
-Player chooses card
-        ↓
-Validate current turn
-        ↓
-Compare card with top table card
-        ↓
-Capture or append to table
-        ↓
-Detect Pişti
-        ↓
-Switch turn
-        ↓
-Deal again if both hands are empty
-        ↓
-Finish and score round when deck is empty
-```
+## Audio Design
 
-A card captures the table when either:
+The game does not depend on downloaded audio assets. Short procedural sounds are synthesized through the Web Audio API using filtered noise and low-frequency table taps.
 
-1. its rank matches the top card on the table, or
-2. the played card is a Jack.
+Different sound profiles are used for:
 
-If the table contains exactly one card when a qualifying capture is made, the move can qualify as a Pişti.
+- placing a card,
+- sweeping/capturing the table,
+- Pişti.
 
-## Bot strategy
+The goal is a dry paper-and-table character closer to playing physical cards than a traditional UI beep.
 
-The bot is intentionally lightweight and understandable rather than acting as an opaque AI opponent.
+## Local-First Persistence
 
-Its priorities are:
+The application stores only local browser data. No gameplay or identity data is sent to a remote server.
 
-1. Capture when possible.
-2. Prefer a normal rank match over spending a Jack.
-3. Preserve higher-value cards where practical.
-4. Avoid discarding a Jack unless necessary.
-5. Add a small random factor between similarly ranked discard options.
+Persisted information includes:
 
-The strategy is implemented in `botChooseCard()` inside `lib/game.ts`.
+- game preferences,
+- sound and motion settings,
+- completed-game statistics,
+- recent match history.
 
-This keeps gameplay entirely local and avoids network latency, model inference, API costs, and backend infrastructure.
+See `docs/STATE_AND_PERSISTENCE.md` for more detail.
 
-## State model
-
-The active round keeps the following information in memory:
-
-```ts
-type GameState = {
-  deck: Card[];
-  humanHand: Card[];
-  botHand: Card[];
-  table: Card[];
-  human: RoundScore;
-  bot: RoundScore;
-  turn: "human" | "bot";
-  lastCapture: "human" | "bot" | null;
-  deal: number;
-  status: "playing" | "round-end";
-};
-```
-
-Active gameplay state is intentionally not persisted after every card. Persistent browser storage is reserved for information that should survive reloads over time:
-
-- user preferences
-- aggregate statistics
-- recent game history
-
-See [docs/STATE_AND_PERSISTENCE.md](docs/STATE_AND_PERSISTENCE.md).
-
-## Local persistence
-
-The application uses versioned keys:
+## Project Structure
 
 ```text
-pisti.stats.v1
-pisti.preferences.v1
-pisti.history.v1
+app/
+├── globals.css
+├── layout.tsx
+├── page.tsx
+└── theme.css
+
+components/
+├── CardView.tsx
+├── GameEffects.tsx
+├── GameEffects.module.css
+└── PistiGame.tsx
+
+lib/
+├── game.ts
+└── storage.ts
+
+docs/
+├── ARCHITECTURE.md
+├── GAME_RULES.md
+└── STATE_AND_PERSISTENCE.md
 ```
 
-Versioned keys make future storage migrations safer if the data structures change.
-
-No game data is sent to a server.
-
-## Animations
-
-Animations are implemented with CSS instead of an animation library.
-
-Examples include:
-
-- cards entering the player's hand
-- hidden bot cards being dealt
-- cards appearing on the center stack
-- score/result overlays
-- toast feedback
-- hover lift for playable cards
-
-The application also respects the operating system's `prefers-reduced-motion` setting and exposes an additional in-game reduced-animation preference.
-
-## Running locally
-
-### Requirements
-
-- Node.js 20.19+ or Node.js 22+
-- npm, pnpm, yarn, or Bun
-
-### Install
+## Running Locally
 
 ```bash
 npm install
-```
-
-### Development
-
-```bash
 npm run dev
 ```
 
 Open `http://localhost:3000`.
 
-### Type check
-
-```bash
-npm run typecheck
-```
-
-### Production build
+For a production build:
 
 ```bash
 npm run build
-npm run start
+npm start
 ```
 
 ## Deploying to Vercel
 
 The repository can be imported directly into Vercel.
 
-1. Open Vercel.
-2. Select **Add New → Project**.
-3. Import `battincik/pisti-web`.
-4. Keep the detected framework as **Next.js**.
-5. Deploy.
+1. Create a new Vercel project.
+2. Import `battincik/pisti-web` from GitHub.
+3. Keep the automatically detected Next.js settings.
+4. Deploy.
 
-No environment variables or external services are required.
+No environment variables, database provisioning, or external services are required.
 
-CLI deployment is also supported:
+## Design Principles
 
-```bash
-npx vercel
-```
+### Local first
 
-## Design principles
+The game should remain instantly playable without login, network latency, or service dependencies.
 
-### Local-first
+### Rules before presentation
 
-The game remains playable without an application backend. Persistence belongs to the browser unless a future feature explicitly requires synchronization.
+Gameplay rules remain independent from animation and visual effects so that UI changes do not alter scoring behavior.
 
-### Domain logic before UI logic
+### Small, explicit game state
 
-Card rules remain understandable independently of rendering concerns.
-
-### Minimal dependencies
-
-A turn-based card game does not require a large state-management or animation stack. Browser capabilities are used where they are sufficient.
+The entire live game can be represented using the deck, hands, table, captured piles, active turn, and last-capture owner.
 
 ### Progressive complexity
 
-The current architecture can later support:
+The bot is intentionally understandable and replaceable. A stronger probability-aware strategy can be introduced later without redesigning the UI or scoring engine.
 
-- difficulty levels
-- improved bot strategies
-- replayable game logs
-- multiplayer rooms
-- user accounts
-- synchronized statistics
-- achievements
-- PWA/offline installation
-- automated game-engine tests
+### Deployment simplicity
 
-without rewriting the base card model.
+The application is intentionally suitable for GitHub → Vercel deployment without infrastructure configuration.
 
-## What this project demonstrates
+## Possible Future Work
 
-- client-side application architecture
-- game-state modeling
-- turn-based state transitions
-- TypeScript domain modeling
-- browser persistence
-- responsive interface development
-- animation design
-- accessibility preferences
-- deployment-oriented frontend architecture
+- Difficulty levels and probability-aware bot strategy
+- Multiplayer rooms using WebSockets
+- Replay/event-log system
+- Installable PWA support
+- More configurable rulesets
+- Additional deck designs and themes
+- Cloud synchronization as an optional layer
+- Accessibility-focused keyboard gameplay
 
 ## Documentation
 
-- [Architecture](docs/ARCHITECTURE.md)
-- [Game Rules](docs/GAME_RULES.md)
-- [State and Persistence](docs/STATE_AND_PERSISTENCE.md)
-- [Contributing](CONTRIBUTING.md)
+- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — architecture and technical decisions
+- [`docs/GAME_RULES.md`](docs/GAME_RULES.md) — implemented rules and scoring
+- [`docs/STATE_AND_PERSISTENCE.md`](docs/STATE_AND_PERSISTENCE.md) — local state and persistence model
+- [`CONTRIBUTING.md`](CONTRIBUTING.md) — contribution guidelines
 
 ## License
 
-This repository currently does not declare an open-source license. All rights remain with the repository owner unless a license is added later.
-
----
-
-Built as a browser-first implementation of Pişti with a focus on clean game-state modeling, responsive interaction, and zero-backend deployment.
+This repository is currently provided as a portfolio and personal project. Add a dedicated license file before reusing the project in another product.
