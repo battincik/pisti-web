@@ -1,5 +1,6 @@
 "use client";
 
+import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import styles from "./GameEffects.module.css";
 
@@ -20,8 +21,15 @@ export default function GameEffects() {
       const toast = document.querySelector<HTMLElement>(".game-toast");
       const text = toast?.textContent?.trim() ?? "";
 
-      if (!text || text === lastToastRef.current || !text.includes("Pişti")) return;
+      if (!text) {
+        lastToastRef.current = "";
+        return;
+      }
+
+      if (text === lastToastRef.current) return;
       lastToastRef.current = text;
+
+      if (!text.includes("Pişti")) return;
 
       const jack = text.includes("Vale Pişti");
       setEffect({
