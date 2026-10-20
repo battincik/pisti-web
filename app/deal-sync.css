@@ -1,0 +1,95 @@
+.deal-sequence {
+  position: absolute;
+  inset: 0;
+  z-index: 17;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.deal-ghost {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  opacity: 0;
+  transform: translate(-50%, -50%);
+  animation-duration: .3s !important;
+  animation-delay: 0s !important;
+  animation-timing-function: cubic-bezier(.2,.78,.24,1) !important;
+  animation-fill-mode: both !important;
+  will-change: transform, opacity;
+}
+
+.deal-ghost.to-bot {
+  animation-name: dealToBotSynced !important;
+}
+
+.deal-ghost.to-human {
+  animation-name: dealToHumanSynced !important;
+}
+
+@keyframes dealToBotSynced {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(8deg) scale(.82);
+  }
+  12% { opacity: 1; }
+  82% { opacity: 1; }
+  100% {
+    opacity: 0;
+    transform: translate(calc(-50% - 4px), calc(-50% - 31vh)) rotate(-6deg) scale(.82);
+  }
+}
+
+@keyframes dealToHumanSynced {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(-8deg) scale(.82);
+  }
+  12% { opacity: 1; }
+  82% { opacity: 1; }
+  100% {
+    opacity: 0;
+    transform: translate(calc(-50% + 4px), calc(-50% + 31vh)) rotate(6deg) scale(.92);
+  }
+}
+
+/* Real cards become visible only after the flying card fires animationend. */
+.is-dealing .dealt-card {
+  animation: dealCardSettle .16s cubic-bezier(.2,.8,.2,1) both !important;
+  animation-delay: 0s !important;
+}
+
+@keyframes dealCardSettle {
+  from {
+    opacity: 0;
+    filter: blur(1px);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+
+.is-dealing .human-hand .card-button {
+  pointer-events: none;
+}
+
+.reduce-motion .deal-sequence {
+  display: none !important;
+}
+
+@media (max-width: 620px) {
+  @keyframes dealToBotSynced {
+    0% { opacity: 0; transform: translate(-50%, -50%) rotate(8deg) scale(.78); }
+    12% { opacity: 1; }
+    82% { opacity: 1; }
+    100% { opacity: 0; transform: translate(-50%, calc(-50% - 29vh)) rotate(-5deg) scale(.76); }
+  }
+
+  @keyframes dealToHumanSynced {
+    0% { opacity: 0; transform: translate(-50%, -50%) rotate(-8deg) scale(.78); }
+    12% { opacity: 1; }
+    82% { opacity: 1; }
+    100% { opacity: 0; transform: translate(-50%, calc(-50% + 29vh)) rotate(5deg) scale(.86); }
+  }
+}
