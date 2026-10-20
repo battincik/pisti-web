@@ -15,12 +15,7 @@
 
 html { background: #05070b; }
 body { background: #05070b; }
-
-button:focus-visible,
-input:focus-visible {
-  outline-color: rgba(59, 130, 246, .9);
-}
-
+button:focus-visible, input:focus-visible { outline-color: rgba(59, 130, 246, .9); }
 ::selection { background: rgba(59, 130, 246, .28); }
 
 .menu-page,
@@ -32,66 +27,23 @@ input:focus-visible {
     linear-gradient(180deg, #090d14 0%, #040609 100%);
 }
 
-.brand-mark {
-  background: linear-gradient(145deg, #f5f7fa, #b9c1cd);
-  color: #0a0d12;
-}
-
-.top-actions button,
-.back-button {
-  color: #d9e0e8;
-}
-
-.eyebrow,
-.hero-copy h1 em,
-.panel-title button,
-.turn-message,
-.history-head small,
-.result-modal > small,
-.rule-list b {
-  color: #73a7ff;
-}
-
+.brand-mark { background: linear-gradient(145deg, #f5f7fa, #b9c1cd); color: #0a0d12; }
+.top-actions button, .back-button { color: #d9e0e8; }
+.eyebrow, .hero-copy h1 em, .panel-title button, .turn-message, .history-head small, .result-modal > small, .rule-list b { color: #73a7ff; }
 .hero-copy > p { color: #98a4b4; }
 
-.mode-panel,
-.history-card,
-.stat-card,
-.modal,
-.result-modal {
+.mode-panel, .history-card, .stat-card, .modal, .result-modal {
   background: linear-gradient(180deg, rgba(20, 27, 38, .96), rgba(8, 12, 18, .96));
   border-color: rgba(148, 163, 184, .14);
 }
-
 .panel-title { color: #d7dee8; }
-
-.mode-card {
-  background: rgba(148, 163, 184, .025);
-  border-color: rgba(148, 163, 184, .12);
-}
-
-.mode-card:hover {
-  border-color: rgba(148, 163, 184, .24);
-}
-
-.mode-card.active {
-  border-color: rgba(59, 130, 246, .6);
-  background: rgba(37, 99, 235, .14);
-}
-
+.mode-card { background: rgba(148, 163, 184, .025); border-color: rgba(148, 163, 184, .12); }
+.mode-card:hover { border-color: rgba(148, 163, 184, .24); }
+.mode-card.active { border-color: rgba(59, 130, 246, .6); background: rgba(37, 99, 235, .14); }
 .mode-card > span { color: #97a3b3; }
-.mode-card.active > span {
-  color: #8db6ff;
-  border-color: rgba(59, 130, 246, .38);
-}
+.mode-card.active > span { color: #8db6ff; border-color: rgba(59, 130, 246, .38); }
 .mode-card small { color: #7f8998; }
-
-.primary-button {
-  background: linear-gradient(180deg, #4f91ff, #2563eb);
-  color: #f8fbff;
-  box-shadow: 0 9px 28px rgba(37, 99, 235, .24);
-}
-
+.primary-button { background: linear-gradient(180deg, #4f91ff, #2563eb); color: #f8fbff; box-shadow: 0 9px 28px rgba(37, 99, 235, .24); }
 .local-note { color: #697585; }
 .local-note::first-letter { color: #60a5fa; }
 
@@ -100,94 +52,110 @@ input:focus-visible {
     radial-gradient(circle at center, rgba(59, 130, 246, .12), transparent 36%),
     linear-gradient(180deg, rgba(14, 19, 28, .97), rgba(5, 8, 13, .99));
 }
-
-.table-area::before {
-  border-color: rgba(148, 163, 184, .08);
-}
-
-.avatar {
-  background: rgba(59, 130, 246, .14);
-  border-color: rgba(59, 130, 246, .28);
-  color: #8cb7ff;
-}
-
-.bot-avatar {
-  background: rgba(148, 163, 184, .07);
-  border-color: rgba(148, 163, 184, .14);
-  color: #d1d7e0;
-}
-
-.pile-count {
-  background: #070a0f;
-}
-
-.game-toast {
-  background: rgba(6, 9, 14, .9);
-  color: #dce3ec;
-  border-color: rgba(148, 163, 184, .16);
-}
-
+.table-area::before { border-color: rgba(148, 163, 184, .08); }
+.avatar { background: rgba(59, 130, 246, .14); border-color: rgba(59, 130, 246, .28); color: #8cb7ff; }
+.bot-avatar { background: rgba(148, 163, 184, .07); border-color: rgba(148, 163, 184, .14); color: #d1d7e0; }
+.pile-count { background: #070a0f; }
+.game-toast { background: rgba(6, 9, 14, .9); color: #dce3ec; border-color: rgba(148, 163, 184, .16); }
 .result-dot.win { background: #3b82f6; }
-
 .settings-list input { accent-color: #3b82f6; }
 
+/* Keep classic playing-card face colors unchanged. */
+.card-face.red { color: #d63d47; }
+.card-face.black { color: #161b18; }
+
+/* Illustrated, mirrored J / Q / K faces. */
+.face-card .card-center { inset: 22px 12px; font-size: initial; }
+.face-art { position: relative; width: 100%; height: 100%; overflow: hidden; border: 1px solid rgba(15, 23, 42, .14); border-radius: 6px; background: linear-gradient(180deg, #f8f1e5, #efe3d1); }
+.face-art.red { --court: #bf3341; --court-soft: #f1b6bc; --court-dark: #78222b; }
+.face-art.black { --court: #26394c; --court-soft: #bfcbd7; --court-dark: #172433; }
+.face-half { position: absolute; left: 0; width: 100%; height: 50%; overflow: hidden; }
+.face-half-top { top: 0; }
+.face-half-bottom { bottom: 0; transform: rotate(180deg); }
+.face-role { position: absolute; top: 3px; left: 50%; transform: translateX(-50%); font: 700 6px/1 ui-sans-serif, system-ui; letter-spacing: .13em; color: var(--court-dark); opacity: .72; }
+.face-crown { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); color: #c89a38; font-size: 15px; line-height: 1; }
+.face-portrait { position: absolute; top: 19px; left: 50%; width: 31px; height: 27px; transform: translateX(-50%); }
+.face-hair { position: absolute; inset: 0 1px 4px; border-radius: 50% 50% 40% 40%; background: #5b432f; }
+.face-head { position: absolute; left: 50%; top: 5px; width: 21px; height: 20px; transform: translateX(-50%); border-radius: 45% 45% 42% 42%; background: #e7bd96; border: 1px solid rgba(70, 44, 27, .18); }
+.face-eye { position: absolute; top: 12px; width: 2px; height: 2px; border-radius: 50%; background: #2c241e; }
+.face-eye-left { left: 9px; }
+.face-eye-right { right: 9px; }
+.face-mouth { position: absolute; left: 50%; top: 18px; width: 7px; height: 3px; transform: translateX(-50%); border-bottom: 1px solid #94515b; border-radius: 50%; }
+.face-costume { position: absolute; left: 50%; top: 43px; width: 54px; height: 26px; transform: translateX(-50%); }
+.face-shoulder { position: absolute; top: 3px; width: 25px; height: 20px; background: var(--court); border: 2px solid #d6b766; }
+.face-shoulder-left { left: 1px; border-radius: 12px 5px 5px 3px; transform: rotate(7deg); }
+.face-shoulder-right { right: 1px; border-radius: 5px 12px 3px 5px; transform: rotate(-7deg); }
+.face-suit { position: absolute; inset: 0; display: grid; place-items: center; color: var(--court-dark); font-size: 17px; text-shadow: 0 1px #fff7e9; }
+.playing-card.compact.face-card .card-center { inset: 16px 8px; }
+.playing-card.compact.face-card .face-role { display: none; }
+.playing-card.compact.face-card .face-crown { top: 5px; font-size: 11px; }
+.playing-card.compact.face-card .face-portrait { top: 14px; transform: translateX(-50%) scale(.78); }
+.playing-card.compact.face-card .face-costume { top: 34px; transform: translateX(-50%) scale(.72); }
+
+/* Explicit collection destinations: bot = left, human = right. */
+.capture-pile-bot { justify-self: start; }
+.capture-pile-human { justify-self: end; }
+.capture-pile-bot b { color: #93c5fd; }
+.capture-pile-human b { color: #86efac; }
+
+.capture-flight { position: absolute; inset: 0; z-index: 18; pointer-events: none; }
+.capture-flight-card { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%) rotate(calc((var(--capture-index) - 2) * 4deg)); }
+.capture-flight-human .capture-flight-card { animation: collectToRight .72s cubic-bezier(.18,.82,.22,1) both; animation-delay: calc(var(--capture-index) * 22ms); }
+.capture-flight-bot .capture-flight-card { animation: collectToLeft .72s cubic-bezier(.18,.82,.22,1) both; animation-delay: calc(var(--capture-index) * 22ms); }
+
+@keyframes collectToRight {
+  0% { opacity: 1; transform: translate(-50%, -50%) rotate(calc((var(--capture-index) - 2) * 4deg)) scale(1); filter: blur(0); }
+  38% { transform: translate(calc(-50% + 24px), calc(-50% + 8px)) rotate(8deg) scale(.92); }
+  100% { opacity: 0; transform: translate(calc(-50% + min(36vw, 430px)), calc(-50% + 12px)) rotate(22deg) scale(.48); filter: blur(1.5px); }
+}
+
+@keyframes collectToLeft {
+  0% { opacity: 1; transform: translate(-50%, -50%) rotate(calc((var(--capture-index) - 2) * 4deg)) scale(1); filter: blur(0); }
+  38% { transform: translate(calc(-50% - 24px), calc(-50% - 8px)) rotate(-8deg) scale(.92); }
+  100% { opacity: 0; transform: translate(calc(-50% - min(36vw, 430px)), calc(-50% - 12px)) rotate(-22deg) scale(.48); filter: blur(1.5px); }
+}
+
+/* Disable the previous generic pseudo-card sweep so collection is shown only once. */
+.felt-center:has(.empty-table) .empty-table::before,
+.felt-center:has(.empty-table) .empty-table::after { display: none !important; }
+
+/* Deal eight visual cards from the center deck, alternating bot and human. */
+.deal-sequence { position: absolute; inset: 0; z-index: 17; pointer-events: none; overflow: hidden; }
+.deal-ghost { position: absolute; left: 50%; top: 50%; opacity: 0; transform: translate(-50%, -50%); animation-duration: .74s; animation-timing-function: cubic-bezier(.18,.8,.22,1); animation-fill-mode: both; animation-delay: calc(var(--deal-index) * 85ms); }
+.deal-ghost.to-bot { animation-name: dealToBot; }
+.deal-ghost.to-human { animation-name: dealToHuman; }
+@keyframes dealToBot {
+  0% { opacity: 0; transform: translate(-50%, -50%) rotate(6deg) scale(.82); }
+  10% { opacity: 1; }
+  70% { opacity: 1; }
+  100% { opacity: 0; transform: translate(calc(-50% + (var(--deal-index) - 3.5) * 9px), calc(-50% - 31vh)) rotate(-7deg) scale(.8); }
+}
+@keyframes dealToHuman {
+  0% { opacity: 0; transform: translate(-50%, -50%) rotate(-6deg) scale(.82); }
+  10% { opacity: 1; }
+  70% { opacity: 1; }
+  100% { opacity: 0; transform: translate(calc(-50% + (var(--deal-index) - 3.5) * 14px), calc(-50% + 31vh)) rotate(7deg) scale(.9); }
+}
+
 /* Player-specific Pişti colors: human = green, bot = blue. */
-[data-pisti-owner="human"] [data-effect-element="flash"] {
-  background:
-    radial-gradient(circle at center, rgba(74, 222, 128, .36), transparent 27%),
-    rgba(255,255,255,.04) !important;
+[data-pisti-owner="human"] [data-effect-element="flash"] { background: radial-gradient(circle at center, rgba(74, 222, 128, .36), transparent 27%), rgba(255,255,255,.04) !important; }
+[data-pisti-owner="human"] [data-effect-element="ring"] { border-color: rgba(74, 222, 128, .65) !important; box-shadow: 0 0 58px rgba(34, 197, 94, .26), inset 0 0 58px rgba(34, 197, 94, .12) !important; }
+[data-pisti-owner="human"] [data-effect-element="spark"] { background: linear-gradient(#dcffe9, #22c55e) !important; }
+[data-pisti-owner="human"] [data-effect-element="badge"] { color: #86efac !important; border-color: rgba(74, 222, 128, .38) !important; background: rgba(5, 26, 14, .72) !important; }
+[data-pisti-owner="human"] [data-effect-element="title"] { color: #ecfff3 !important; text-shadow: 0 0 34px rgba(34, 197, 94, .3), 0 10px 28px rgba(0,0,0,.55) !important; }
+[data-pisti-owner="human"] [data-effect-element="card"] { box-shadow: 0 26px 70px rgba(0,0,0,.48), 0 0 0 2px rgba(74, 222, 128, .3) inset, 0 0 38px rgba(34, 197, 94, .2) !important; }
+[data-pisti-owner="bot"] [data-effect-element="flash"] { background: radial-gradient(circle at center, rgba(96, 165, 250, .38), transparent 27%), rgba(255,255,255,.04) !important; }
+[data-pisti-owner="bot"] [data-effect-element="ring"] { border-color: rgba(96, 165, 250, .68) !important; box-shadow: 0 0 60px rgba(37, 99, 235, .3), inset 0 0 58px rgba(37, 99, 235, .14) !important; }
+[data-pisti-owner="bot"] [data-effect-element="spark"] { background: linear-gradient(#e0efff, #3b82f6) !important; }
+[data-pisti-owner="bot"] [data-effect-element="badge"] { color: #93c5fd !important; border-color: rgba(96, 165, 250, .42) !important; background: rgba(6, 18, 40, .76) !important; }
+[data-pisti-owner="bot"] [data-effect-element="title"] { color: #eff6ff !important; text-shadow: 0 0 36px rgba(59, 130, 246, .34), 0 10px 28px rgba(0,0,0,.55) !important; }
+[data-pisti-owner="bot"] [data-effect-element="card"] { box-shadow: 0 26px 70px rgba(0,0,0,.48), 0 0 0 2px rgba(96, 165, 250, .34) inset, 0 0 40px rgba(37, 99, 235, .22) !important; }
+
+@media (max-width: 620px) {
+  @keyframes collectToRight { 100% { opacity: 0; transform: translate(calc(-50% + 42vw), calc(-50% + 15px)) rotate(18deg) scale(.42); } }
+  @keyframes collectToLeft { 100% { opacity: 0; transform: translate(calc(-50% - 42vw), calc(-50% - 15px)) rotate(-18deg) scale(.42); } }
+  .face-card .card-center { inset: 18px 9px; }
 }
 
-[data-pisti-owner="human"] [data-effect-element="ring"] {
-  border-color: rgba(74, 222, 128, .65) !important;
-  box-shadow: 0 0 58px rgba(34, 197, 94, .26), inset 0 0 58px rgba(34, 197, 94, .12) !important;
-}
-
-[data-pisti-owner="human"] [data-effect-element="spark"] {
-  background: linear-gradient(#dcffe9, #22c55e) !important;
-}
-
-[data-pisti-owner="human"] [data-effect-element="badge"] {
-  color: #86efac !important;
-  border-color: rgba(74, 222, 128, .38) !important;
-  background: rgba(5, 26, 14, .72) !important;
-}
-
-[data-pisti-owner="human"] [data-effect-element="title"] {
-  color: #ecfff3 !important;
-  text-shadow: 0 0 34px rgba(34, 197, 94, .3), 0 10px 28px rgba(0,0,0,.55) !important;
-}
-
-[data-pisti-owner="human"] [data-effect-element="card"] {
-  box-shadow: 0 26px 70px rgba(0,0,0,.48), 0 0 0 2px rgba(74, 222, 128, .3) inset, 0 0 38px rgba(34, 197, 94, .2) !important;
-}
-
-[data-pisti-owner="bot"] [data-effect-element="flash"] {
-  background:
-    radial-gradient(circle at center, rgba(96, 165, 250, .38), transparent 27%),
-    rgba(255,255,255,.04) !important;
-}
-
-[data-pisti-owner="bot"] [data-effect-element="ring"] {
-  border-color: rgba(96, 165, 250, .68) !important;
-  box-shadow: 0 0 60px rgba(37, 99, 235, .3), inset 0 0 58px rgba(37, 99, 235, .14) !important;
-}
-
-[data-pisti-owner="bot"] [data-effect-element="spark"] {
-  background: linear-gradient(#e0efff, #3b82f6) !important;
-}
-
-[data-pisti-owner="bot"] [data-effect-element="badge"] {
-  color: #93c5fd !important;
-  border-color: rgba(96, 165, 250, .42) !important;
-  background: rgba(6, 18, 40, .76) !important;
-}
-
-[data-pisti-owner="bot"] [data-effect-element="title"] {
-  color: #eff6ff !important;
-  text-shadow: 0 0 36px rgba(59, 130, 246, .34), 0 10px 28px rgba(0,0,0,.55) !important;
-}
-
-[data-pisti-owner="bot"] [data-effect-element="card"] {
-  box-shadow: 0 26px 70px rgba(0,0,0,.48), 0 0 0 2px rgba(96, 165, 250, .34) inset, 0 0 40px rgba(37, 99, 235, .22) !important;
-}
+.reduce-motion .deal-sequence,
+.reduce-motion .capture-flight { display: none; }
