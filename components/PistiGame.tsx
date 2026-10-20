@@ -278,7 +278,8 @@ export default function PistiGame() {
     roundRecorded.current = true;
 
     const score = scoreRound(state);
-    const result = score.human > score.bot ? "win" : score.human < score.bot ? "loss" : "draw";
+    const result: HistoryItem["result"] =
+      score.human > score.bot ? "win" : score.human < score.bot ? "loss" : "draw";
 
     setStats((current) => ({
       games: current.games + 1,
